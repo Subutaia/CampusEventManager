@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – Campus Events</title>
+    <link rel="stylesheet" href="../CSS/Login.css">
+</head>
+<body>
+
+    <div class="Login-box">
+        <h2>Login</h2>
+        <div id="loginError" style="color:#c0392b;font-size:13px;margin-bottom:6px;display:none"></div>
+        <input type="text" id="usernameInput" placeholder="Username">
+        <input type="password" id="passwordInput" placeholder="Password">
+        <button id="LoginBtn">Login</button>
+
+        <div class="SmallBtn">
+            <button id="Register" class="link-btn">Register</button>
+            <button id="Forgot" class="link-btn">Forgot Password?</button>
+        </div>
+    </div>
+
+    <!-- Shared data layer must load before Login.js -->
+    <script src="../../../Shared/JavaScript/data.js"></script>
+    <script src="../JavaScript/Login.js"></script>
+</body>
+</html>
+

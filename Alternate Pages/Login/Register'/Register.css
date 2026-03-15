@@ -1,0 +1,157 @@
+/* Reset */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Center everything */
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: gray;
+}
+/* The Box */
+.Account_type {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 500px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgb(0,0,0,0.1);
+    text-align: center;
+    font-size: 25px;
+}
+/* The Box */
+.Register-box {
+    width: 300px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+
+/* Button */
+.Register-box button {
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* Inputs */
+.Register-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+/* Button */
+.Register-box button {
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* Register and Forgot Password buttons adjustments */
+.Already {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 10px;
+    text-align: center;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 5px;
+
+    color: #007bff;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+/* text-style buttons */
+
+.Account {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 5px;
+
+    color: #007bff;
+    font-size: 12px;
+    cursor: pointer;
+}
+ /* Hover effect */
+ .Account {
+    text-decoration: underline;
+ }
+
+
+ /* Account choice adjustments */
+
+.Choice {
+    display: flex;
+    justify-content: center;
+    gap: 75px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* text-style buttons */
+
+.type-btn {
+    background: none;
+    border: none;
+    padding: 10px;
+    color: blue;
+    font-size: 25px;
+    cursor: pointer;
+}
+
+ /* Hover effect */
+ .type-btn {
+        font-weight: bold;
+ }
+
+ /* Account choice back Arrow */
+
+
+.Back_Arrow {
+    display: flex;
+    position: absolute;
+    top: -10px;
+    left: 2px;
+    margin-top: 0%;
+}
+
+
+.Arrow {
+    background: none;
+    border: none;
+    padding: 0px;
+    margin: 5px;
+
+    color:  blue;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* summit email button */
+
+.Email {
+    display: flex;
+
+}
+
+.FEmail {
+    background: #007bff;
+}

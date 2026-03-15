@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register – Campus Events</title>
+    <link rel="stylesheet" href="../../Register/CSS/Register.css">
+</head>
+<body>
+
+    <div class="Register-box">
+        <h2>Register</h2>
+        <p id="roleLabel" style="font-size:13px;color:#555;margin-bottom:6px"></p>
+        <div id="registerError" style="color:#c0392b;font-size:13px;margin-bottom:6px;display:none"></div>
+        <input type="text" id="usernameInput" placeholder="Enter Username">
+        <input type="password" id="passwordInput" placeholder="Enter Password">
+        <input type="password" id="confirmInput" placeholder="Confirm Password">
+        <button id="Register">Register</button>
+
+        <div class="Already">
+            <button id="Have" class="Account">Have an Account?</button>
+        </div>
+    </div>
+
+    <!-- Shared data layer must load before Register.js -->
+    <script src="../../../Shared/JavaScript/data.js"></script>
+    <script src="../../Register/JavaScript/Register.js"></script>
+</body>
+</html>
+

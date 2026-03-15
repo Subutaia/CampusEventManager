@@ -1,0 +1,114 @@
+/* Reset */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Center everything */
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: gray;
+}
+
+/* The Box */
+.Login-box {
+    width: 300px;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgb(0,0,0,0.1);
+    text-align: center;
+}
+
+/* Inputs */
+.Login-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+/* Button */
+.Login-box button {
+    width: 100%;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* Register and Forgot Password buttons adjustments */
+.SmallBtn {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* text-style buttons */
+
+.link-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 5px;
+
+    color: #007bff;
+    font-size: 12px;
+    cursor: pointer;
+}
+ /* Hover effect */
+ .link-btn {
+    text-decoration: underline;
+ }
+
+/* The Box */
+.Forgot_box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+    width: 500px;
+    padding: 50px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgb(0,0,0,0.1);
+    text-align: center;
+    font-size: 25px;
+}
+
+.SEmail {
+    padding: 10px 20px;
+    font-size: 18px;
+}
+.Forgot_Email {
+    padding: 10px 20px;
+    font-size: 18px;
+}
+
+
+
+.Back_Arrow {
+    display: flex;
+    position: absolute;
+    top: -10px;
+    left: 2px;
+    margin-top: 0%;
+}
+
+
+.Arrow {
+    background: none;
+    border: none;
+    padding: 0px;
+    margin: 5px;
+
+    color:  blue;
+    font-size: 30px;
+    cursor: pointer;
+}

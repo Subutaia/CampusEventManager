@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Campus Event Management System">
+    <title>Campus Event Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../Styles/mainstyle.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- nav bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="nav-brand">
+                    <span>Campus Events</span>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#home" class="nav-link active">Home</a></li>
+                    <li><a href="#events" class="nav-link">Events</a></li>
+                    <li><a href="#about" class="nav-link">About</a></li>
+                    <li><a href="#contact" class="nav-link">Contact</a></li>
+                </ul>
+                <div class="nav-actions" id="navActions">
+                    <!-- populated by JS based on session state -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- hero section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Discover Campus Events</h1>
+                <p class="hero-subtitle">
+                    Connect, engage, and participate in campus activities. 
+                </p>
+                <div class="hero-actions">
+                    <a href="#events" class="btn btn-primary btn-lg">Browse Events</a>
+                    <a href="../../Alternate%20Pages/Login/Login_page/HTML/Account_type.html" class="btn btn-outline btn-lg">Create Event</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- search & filter -->
+    <section class="search-section" id="events">
+        <div class="container">
+            <div class="search-wrapper">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input class="search-input" id="searchInput" type="text" placeholder="Search for campus events, clubs, or workshops">
+                </div>
+                <div class="filter-group">
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="technology">Technology</option>
+                        <option value="cultural">Cultural</option>
+                        <option value="career">Career</option>
+                        <option value="sports">Sports</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <select class="filter-select" id="dateFilter">
+                        <option value="">All Dates</option>
+                        <option value="today">Today</option>
+                        <option value="this-week">This Week</option>
+                        <option value="this-month">This Month</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- featured events -->
+    <section class="events-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Upcoming Events</h2>
+            </div>
+            <div class="events-grid" id="eventsGrid">
+                <!-- populated by JS -->
+            </div>
+            <p id="noEventsMsg" style="display:none;text-align:center;color:#6B7280;padding:2rem">No events match your search.</p>
+        </div>
+    </section>
+
+    <section class="events-section" id="about">
+        <div class="container text-center">
+            <div class="section-header">
+                <h2 class="section-title">Built for Campus Life</h2>
+            </div>
+            <p class="hero-subtitle about-copy">
+                Campus Event Manager helps students discover activities, follow upcoming programs, and stay connected with the events that matter across campus.
+            </p>
+        </div>
+    </section>
+
+    <footer class="search-section" id="contact">
+        <div class="container text-center">
+            <p class="event-description">Need help getting started? Use the login and sign up links above to access the scheduler pages.</p>
+        </div>
+    </footer>
+
+    <script src="../../Alternate%20Pages/Shared/JavaScript/data.js"></script>
+    <script>
+        // ── Auth-aware navbar ────────────────────────────────────────────────
+        const currentUser = CampusData.getCurrentUser();
+        const navActions  = document.getElementById('navActions');
+
+        const LOGIN_PATH   = '../../Alternate%20Pages/Login/Login_page/HTML/Login.html';
+        const SIGNUP_PATH  = '../../Alternate%20Pages/Login/Login_page/HTML/Account_type.html';
+        const DASHBOARDS   = {
+            student:   '../../Alternate%20Pages/Dashboard/student_dashboard.html',
+            organizer: '../../Alternate%20Pages/Dashboard/organizer_dashboard.html',
+            admin:     '../../Alternate%20Pages/Dashboard/admin_dashboard.html'
+        };
+
+        if (currentUser) {
+            const dashPath = DASHBOARDS[currentUser.role] || DASHBOARDS.student;
+            navActions.innerHTML = `
+                <a href="${dashPath}" class="btn btn-outline">Dashboard</a>
+                <button class="btn btn-primary" id="logoutBtn">Logout</button>`;
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                CampusData.logout();
+                window.location.reload();
+            });
+        } else {
+            navActions.innerHTML = `
+                <a href="${LOGIN_PATH}"  class="btn btn-outline">Login</a>
+                <a href="${SIGNUP_PATH}" class="btn btn-primary">Sign Up</a>`;
+        }
+
+        // ── Event rendering ───────────────────────────────────────────────────
+        const formatDate = d => CampusData.formatDate(d);
+        const formatTime = t => CampusData.formatTime(t);
+
+        function isToday(dateStr) {
+            const today = new Date(); today.setHours(0,0,0,0);
+            const d     = new Date(dateStr + 'T00:00:00');
+            return d.getTime() === today.getTime();
+        }
+        function isThisWeek(dateStr) {
+            const now  = new Date(); now.setHours(0,0,0,0);
+            const d    = new Date(dateStr + 'T00:00:00');
+            const diff = (d - now) / (1000 * 60 * 60 * 24);
+            return diff >= 0 && diff < 7;
+        }
+        function isThisMonth(dateStr) {
+            const now = new Date();
+            const d   = new Date(dateStr + 'T00:00:00');
+            return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+        }
+
+        function renderEvents() {
+            const query    = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const date     = document.getElementById('dateFilter').value;
+
+            let events = CampusData.getApprovedEvents();
+
+            if (query) events = events.filter(e =>
+                e.title.toLowerCase().includes(query) ||
+                e.description.toLowerCase().includes(query) ||
+                e.location.toLowerCase().includes(query)
+            );
+            if (category) events = events.filter(e => e.category === category);
+            if (date === 'today')      events = events.filter(e => isToday(e.date));
+            if (date === 'this-week')  events = events.filter(e => isThisWeek(e.date));
+            if (date === 'this-month') events = events.filter(e => isThisMonth(e.date));
+
+            const grid   = document.getElementById('eventsGrid');
+            const noMsg  = document.getElementById('noEventsMsg');
+
+            if (events.length === 0) {
+                grid.innerHTML = '';
+                noMsg.style.display = 'block';
+                return;
+            }
+            noMsg.style.display = 'none';
+
+            const detailHref = currentUser
+                ? DASHBOARDS[currentUser.role] || DASHBOARDS.student
+                : LOGIN_PATH;
+
+            grid.innerHTML = events.map(ev => `
+                <article class="event-card">
+                    <div class="event-image">
+                        <img src="https://placehold.co/400x250?text=${encodeURIComponent(ev.category)}" alt="${ev.title}">
+                        <span class="event-badge badge-success">Approved</span>
+                    </div>
+                    <div class="event-content">
+                        <div class="event-meta">
+                            <span class="event-date"><i class="far fa-calendar"></i> ${formatDate(ev.date)}</span>
+                            <span class="event-time"><i class="far fa-clock"></i> ${formatTime(ev.time)}</span>
+                        </div>
+                        <h3 class="event-title">${ev.title}</h3>
+                        <p class="event-description">${ev.description}</p>
+                        <div class="event-footer">
+                            <div class="event-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>${ev.location}</span>
+                            </div>
+                            <div class="event-attendees">
+                                <i class="fas fa-users"></i>
+                                <span>${ev.attendeeCount} attending</span>
+                            </div>
+                        </div>
+                        <div class="event-tags">
+                            ${(ev.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}
+                        </div>
+                        <a href="${detailHref}" class="btn btn-primary btn-block">View Details</a>
+                    </div>
+                </article>`).join('');
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderEvents);
+        document.getElementById('categoryFilter').addEventListener('change', renderEvents);
+        document.getElementById('dateFilter').addEventListener('change', renderEvents);
+
+        renderEvents();
+    </script>
+</body>
+</html>
