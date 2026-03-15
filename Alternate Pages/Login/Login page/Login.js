@@ -25,9 +25,9 @@ function handleLogin() {
     CampusData.setCurrentUser(user);
 
     const dashboards = {
-        student:   "../../../Dashboard/student_dashboard.html",
-        organizer: "../../../Dashboard/organizer_dashboard.html",
-        admin:     "../../../Dashboard/admin_dashboard.html"
+        student:   "../../Dashboard/student_dashboard.html",
+        organizer: "../../Dashboard/organizer_dashboard.html",
+        admin:     "../../Dashboard/admin_dashboard.html"
     };
 
     window.location.href = dashboards[user.role] || dashboards.student;

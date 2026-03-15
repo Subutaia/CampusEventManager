@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../Styles/mainstyle.css">
+    <link rel="stylesheet" href="mainstyle.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -42,7 +42,7 @@
                 </p>
                 <div class="hero-actions">
                     <a href="#events" class="btn btn-primary btn-lg">Browse Events</a>
-                    <a href="../../Alternate%20Pages/Login/Login_page/HTML/Account_type.html" class="btn btn-outline btn-lg">Create Event</a>
+                    <a href="../Alternate%20Pages/Login/Login%20page/Account_type.html" class="btn btn-outline btn-lg">Create Event</a>
                 </div>
             </div>
         </div>
@@ -106,18 +106,18 @@
         </div>
     </footer>
 
-    <script src="../../Alternate%20Pages/Shared/JavaScript/data.js"></script>
+    <script src="../Alternate%20Pages/Shared/data.js"></script>
     <script>
         // ── Auth-aware navbar ────────────────────────────────────────────────
         const currentUser = CampusData.getCurrentUser();
         const navActions  = document.getElementById('navActions');
 
-        const LOGIN_PATH   = '../../Alternate%20Pages/Login/Login_page/HTML/Login.html';
-        const SIGNUP_PATH  = '../../Alternate%20Pages/Login/Login_page/HTML/Account_type.html';
+        const LOGIN_PATH   = '../Alternate%20Pages/Login/Login%20page/Login.html';
+        const SIGNUP_PATH  = '../Alternate%20Pages/Login/Login%20page/Account_type.html';
         const DASHBOARDS   = {
-            student:   '../../Alternate%20Pages/Dashboard/student_dashboard.html',
-            organizer: '../../Alternate%20Pages/Dashboard/organizer_dashboard.html',
-            admin:     '../../Alternate%20Pages/Dashboard/admin_dashboard.html'
+            student:   '../Alternate%20Pages/Dashboard/student_dashboard.html',
+            organizer: '../Alternate%20Pages/Dashboard/organizer_dashboard.html',
+            admin:     '../Alternate%20Pages/Dashboard/admin_dashboard.html'
         };
 
         if (currentUser) {

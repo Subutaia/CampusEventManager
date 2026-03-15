@@ -3,5 +3,5 @@ document.getElementById("SEmail").addEventListener("click", () => {
 })
 
 document.getElementById("Back").addEventListener("click", () => {
-    window.location.href = "../HTML/Login.html";
+    window.location.href = "Login.html";
 });

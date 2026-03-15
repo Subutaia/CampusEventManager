@@ -109,19 +109,19 @@
     </div>
 </div>
 
-<script src="../Shared/JavaScript/data.js"></script>
+<script src="../Shared/data.js"></script>
 <script>
     // ── Auth Guard ───────────────────────────────────────────────────────────
     const user = CampusData.getCurrentUser();
     if (!user || user.role !== 'organizer') {
-        window.location.href = '../Login/Login_page/HTML/Login.html';
+        window.location.href = '../Login/Login page/Login.html';
     }
 
     document.getElementById('userDisplay').textContent = 'Hi, ' + user.username;
 
     document.getElementById('logoutBtn').addEventListener('click', () => {
         CampusData.logout();
-        window.location.href = '../Login/Login_page/HTML/Login.html';
+        window.location.href = '../Login/Login page/Login.html';
     });
 
     // ── Tabs ─────────────────────────────────────────────────────────────────
