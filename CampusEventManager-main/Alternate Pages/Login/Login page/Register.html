@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register – Campus Events</title>
+    <link rel="stylesheet" href="../Register/Register.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <div class="nav-brand">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Campus Events</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="login-page">
+        <div class="Register-box">
+            <h2>Register</h2>
+            <p id="roleLabel"></p>
+            <div id="registerError"></div>
+
+            <input type="text" id="usernameInput" placeholder="Enter Username">
+            <input type="password" id="passwordInput" placeholder="Enter Password">
+
+            <button id="Register" type="button">Create Account</button>
+
+            <div class="Already">
+                <button id="HaveAccount" class="link-btn">Already have an account?</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../../Shared/data.js"></script>
+    <script src="../Register/Register.js"></script>
+</body>
+</html>
