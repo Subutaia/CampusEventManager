@@ -10,17 +10,313 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="mainstyle.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Modal Overlay */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+        .modal-overlay.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; border-radius: 10px; padding: 2rem; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; }
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6B7280; }
+        .modal-close:hover { color: #1F2937; }
+        .modal-tabs { display: flex; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #E5E7EB; }
+        .modal-tab { background: none; border: none; padding: 0.75rem 1rem; cursor: pointer; font-weight: 500; color: #6B7280; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+        .modal-tab.active { color: #4F46E5; border-bottom-color: #4F46E5; }
+        .modal-tab-panes { display: none; }
+        .modal-tab-panes.active { display: block; }
+
+        /* Dashboard Container */
+        .dashboard-container { display: none; min-height: 100vh; background: #F9FAFB; }
+        .dashboard-container.active { display: block; }
+        .dashboard-tabs { display: flex; gap: 0.5rem; padding: 1rem; background: white; border-bottom: 1px solid #E5E7EB; overflow-x: auto; position: sticky; top: 70px; }
+        .dashboard-tab { padding: 0.75rem 1.2rem; background: none; border: none; cursor: pointer; font-weight: 500; color: #6B7280; border-bottom: 3px solid transparent; }
+        .dashboard-tab.active { color: #4F46E5; border-bottom-color: #4F46E5; }
+        .dashboard-content { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+        .dashboard-panel { display: none; }
+        .dashboard-panel.active { display: block; }
+
+        /* Form Styles */
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #1F2937; font-size: 0.95rem; }
+        .form-input, .form-textarea { width: 100%; padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: 6px; font-family: inherit; font-size: 0.95rem; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: #4F46E5; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+        .form-error { color: #EF4444; font-size: 0.875rem; margin-top: 0.25rem; display: none; }
+        .form-error.show { display: block; }
+
+        /* Card */
+        .card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+        .empty-state { text-align: center; padding: 2rem; color: #6B7280; }
+        .empty-state i { font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.5; }
+
+        /* Featured Events Section */
+        .featured-section { background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%); padding: 3rem 0; }
+        .featured-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem; }
+        .featured-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; animation: slideInUp 0.6s ease-out; }
+        .featured-card:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
+        .featured-badge { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 700; display: inline-block; margin-bottom: 0.5rem; border-radius: 20px; }
+        .featured-content { padding: 1.5rem; }
+        .featured-meta { display: flex; gap: 1rem; font-size: 0.85rem; color: #6B7280; margin-bottom: 0.75rem; }
+        .featured-title { font-size: 1.1rem; font-weight: 700; color: #1F2937; margin-bottom: 0.5rem; }
+        .featured-desc { font-size: 0.9rem; color: #6B7280; margin-bottom: 1rem; }
+        .featured-attendees { display: flex; align-items: center; gap: 0.5rem; color: #4F46E5; font-weight: 600; font-size: 0.9rem; }
+
+        /* Calendar Section */
+        .calendar-section { padding: 3rem 0; background: white; }
+        .calendar-wrapper { display: grid; grid-template-columns: 1fr 2fr; gap: 3rem; align-items: start; }
+        .calendar-mini { background: white; border: 2px solid #E5E7EB; border-radius: 12px; padding: 1rem; margin-top: 1rem; }
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; }
+        .calendar-day-header { text-align: center; font-weight: 600; color: #6B7280; font-size: 0.75rem; padding: 0.5rem; text-transform: uppercase; }
+        .calendar-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 6px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s; border: 1px solid #E5E7EB; }
+        .calendar-day:hover { background: #F3F4F6; }
+        .calendar-day.has-events { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; font-weight: 700; border-color: #4F46E5; }
+        .calendar-day.today { background: #FEF3C7; border-color: #F59E0B; }
+        .calendar-events { }
+        .events-timeline { display: flex; flex-direction: column; gap: 1rem; }
+        .timeline-item { display: flex; gap: 1rem; animation: slideInUp 0.6s ease-out; }
+        .timeline-dot { width: 24px; height: 24px; border-radius: 50%; background: #4F46E5; flex-shrink: 0; margin-top: 0.25rem; position: relative; }
+        .timeline-dot::after { content: ''; position: absolute; inset: -8px; background: rgba(79, 70, 229, 0.1); border-radius: 50%; }
+        .timeline-event { flex: 1; background: white; border: 1px solid #E5E7EB; border-left: 4px solid #4F46E5; border-radius: 8px; padding: 1rem; transition: all 0.3s; }
+        .timeline-event:hover { border-left-color: #7C3AED; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .timeline-date { font-size: 0.8rem; font-weight: 700; color: #4F46E5; text-transform: uppercase; }
+        .timeline-title { font-weight: 600; color: #1F2937; margin: 0.25rem 0; }
+        .timeline-time { font-size: 0.85rem; color: #6B7280; }
+
+        /* Animations */
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Dark Mode Toggle Button */
+        .dark-mode-toggle { background: none; border: none; cursor: pointer; padding: 0.5rem 0.75rem; color: #6B7280; font-size: 1.2rem; transition: all 0.3s; border-radius: 6px; }
+        .dark-mode-toggle:hover { background: #F3F4F6; color: #1F2937; }
+
+        /* Dark Mode Styles */
+        body[data-theme="dark"] {
+            background-color: #0F172A;
+            color: #E5E7EB;
+        }
+
+        body[data-theme="dark"] .navbar {
+            background-color: #1E293B;
+            border-color: #334155;
+        }
+
+        body[data-theme="dark"] .nav-link {
+            color: #CBD5E1;
+        }
+
+        body[data-theme="dark"] .nav-link:hover {
+            color: #F1F5F9;
+        }
+
+        body[data-theme="dark"] .modal-overlay.active {
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        body[data-theme="dark"] .modal-content {
+            background: #1E293B;
+            color: #E5E7EB;
+        }
+
+        body[data-theme="dark"] .modal-tab {
+            color: #94A3B8;
+        }
+
+        body[data-theme="dark"] .modal-tab.active {
+            color: #818CF8;
+        }
+
+        body[data-theme="dark"] .modal-tabs {
+            border-bottom-color: #334155;
+        }
+
+        body[data-theme="dark"] .form-input,
+        body[data-theme="dark"] .form-textarea {
+            background: #0F172A;
+            border-color: #334155;
+            color: #E5E7EB;
+        }
+
+        body[data-theme="dark"] .form-input:focus,
+        body[data-theme="dark"] .form-textarea:focus {
+            border-color: #818CF8;
+            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
+        }
+
+        body[data-theme="dark"] .form-label {
+            color: #E5E7EB;
+        }
+
+        body[data-theme="dark"] .dashboard-container {
+            background: #0F172A;
+        }
+
+        body[data-theme="dark"] .dashboard-tabs {
+            background: #1E293B;
+            border-bottom-color: #334155;
+        }
+
+        body[data-theme="dark"] .dashboard-tab {
+            color: #94A3B8;
+        }
+
+        body[data-theme="dark"] .dashboard-tab.active {
+            color: #818CF8;
+        }
+
+        body[data-theme="dark"] .card {
+            background: #1E293B;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        body[data-theme="dark"] .featured-section {
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+        }
+
+        body[data-theme="dark"] .featured-card {
+            background: #1E293B;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        body[data-theme="dark"] .featured-title {
+            color: #F1F5F9;
+        }
+
+        body[data-theme="dark"] .featured-desc {
+            color: #94A3B8;
+        }
+
+        body[data-theme="dark"] .featured-meta {
+            color: #94A3B8;
+        }
+
+        body[data-theme="dark"] .calendar-section {
+            background: #1E293B;
+        }
+
+        body[data-theme="dark"] .calendar-mini {
+            background: #0F172A;
+            border-color: #334155;
+        }
+
+        body[data-theme="dark"] .calendar-day {
+            border-color: #334155;
+            color: #E5E7EB;
+        }
+
+        body[data-theme="dark"] .calendar-day:hover {
+            background: #334155;
+        }
+
+        body[data-theme="dark"] .calendar-day-header {
+            color: #94A3B8;
+        }
+
+        body[data-theme="dark"] .timeline-event {
+            background: #1E293B;
+            border-color: #334155;
+            color: #E5E7EB;
+        }
+
+        body[data-theme="dark"] .timeline-event:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        body[data-theme="dark"] .timeline-time {
+            color: #94A3B8;
+        }
+
+        body[data-theme="dark"] .btn {
+            background: #4F46E5;
+            color: white;
+        }
+
+        body[data-theme="dark"] .btn:hover {
+            background: #7C3AED;
+        }
+
+        body[data-theme="dark"] .tag {
+            background: #334155;
+            color: #E5E7EB;
+        }
+
+        body[data-theme="dark"] .dark-mode-toggle {
+            color: #CBD5E1;
+        }
+
+        body[data-theme="dark"] .dark-mode-toggle:hover {
+            background: #334155;
+            color: #F1F5F9;
+        }
+
+        body[data-theme="dark"] .event-card {
+            background: #1E293B;
+            border-color: #334155;
+        }
+
+        body[data-theme="dark"] .event-title {
+            color: #F1F5F9;
+        }
+
+        body[data-theme="dark"] .event-meta {
+            color: #94A3B8;
+        }
+
+        body[data-theme="dark"] .section-title {
+            color: #F1F5F9;
+        }
+
+        body[data-theme="dark"] .section-subtitle {
+            color: #CBD5E1;
+        }
+
+        body[data-theme="dark"] .section-header h2 {
+            color: #F1F5F9;
+        }
+
+        body[data-theme="dark"] .section-header p {
+            color: #CBD5E1;
+        }
+
+        body[data-theme="dark"] h2,
+        body[data-theme="dark"] h3,
+        body[data-theme="dark"] h4,
+        body[data-theme="dark"] h5,
+        body[data-theme="dark"] h6 {
+            color: #F1F5F9;
+        }
+
+        body[data-theme="dark"] .link-primary {
+            color: #818CF8;
+        }
+
+        body[data-theme="dark"] .link-primary:hover {
+            color: #A5B4FC;
+        }
+
+        body[data-theme="dark"] p {
+            color: #CBD5E1;
+        }
+
+        body[data-theme="dark"] .container {
+            color: #E5E7EB;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .calendar-wrapper { grid-template-columns: 1fr; gap: 2rem; }
+            .featured-grid { grid-template-columns: 1fr; }
+            .events-timeline { gap: 0.75rem; }
+        }
+    </style>
 </head>
 <body>
     <!-- nav bar -->
-    <nav class="navbar">
+    <nav class="navbar" id="mainNav">
         <div class="container">
             <div class="nav-wrapper">
                 <div class="nav-brand">
-                    <span>Campus Events</span>
+                    <span id="navBrand">Campus Events</span>
                 </div>
-                <ul class="nav-menu">
-                    <li><a href="#home" class="nav-link active">Home</a></li>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#home" class="nav-link active" onclick="AppState.goHome(event)">Home</a></li>
                     <li><a href="#events" class="nav-link">Events</a></li>
                     <li><a href="#about" class="nav-link">About</a></li>
                     <li><a href="#contact" class="nav-link">Contact</a></li>
@@ -28,9 +324,210 @@
                 <div class="nav-actions" id="navActions">
                     <!-- populated by JS based on session state -->
                 </div>
+                <button class="dark-mode-toggle" id="darkModeToggle" onclick="AppState.toggleDarkMode()" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- Login Modal -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="AppState.closeModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-tabs">
+                <button class="modal-tab active" onclick="AppState.switchAuthTab('login')">Login</button>
+                <button class="modal-tab" onclick="AppState.switchAuthTab('register')">Register</button>
+            </div>
+            
+            <!-- Login Tab -->
+            <div class="modal-tab-panes active" id="loginPane">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input class="form-input" type="text" id="loginUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input class="form-input" type="password" id="loginPassword" placeholder="Enter password">
+                </div>
+                <div class="form-error" id="loginError"></div>
+                <button class="btn btn-primary btn-block" onclick="AppState.handleLogin()" style="width:100%;padding:0.75rem;margin-top:1rem">Login</button>
+            </div>
+
+            <!-- Register Tab -->
+            <div class="modal-tab-panes" id="registerPane">
+                <div class="form-group">
+                    <label class="form-label">Account Type</label>
+                    <div style="display:flex;gap:1rem;margin-top:0.5rem">
+                        <label style="flex:1;display:flex;align-items:center">
+                            <input type="radio" name="role" value="student" checked style="margin-right:0.5rem"> Student
+                        </label>
+                        <label style="flex:1;display:flex;align-items:center">
+                            <input type="radio" name="role" value="organizer" style="margin-right:0.5rem"> Organizer
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input class="form-input" type="text" id="regUsername" placeholder="Choose username">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input class="form-input" type="password" id="regPassword" placeholder="Min 8 characters">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input class="form-input" type="password" id="regConfirm" placeholder="Confirm password">
+                </div>
+                <div class="form-error" id="registerError"></div>
+                <button class="btn btn-primary btn-block" onclick="AppState.handleRegister()" style="width:100%;padding:0.75rem;margin-top:1rem">Create Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="dashboard-container" id="dashboardContainer">
+        <div style="background:#4F46E5;color:white;padding:1rem 0;position:sticky;top:70px;z-index:99">
+            <div class="container">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <h2 style="margin:0;font-size:1.25rem;font-weight:700">Welcome, <span id="userWelcome"></span></h2>
+                        <p style="margin:0.25rem 0 0 0;opacity:0.9;font-size:0.9rem">Manage your events and discover campus activities</p>
+                    </div>
+                    <div style="display:flex;gap:0.5rem">
+                        <button class="btn btn-outline" id="notifToggleDash" style="background:rgba(255,255,255,0.2);color:white;border:none;padding:0.5rem 1rem" title="Notifications">
+                            <i class="fas fa-bell"></i> <span id="notifBadgeDash" style="display:none;background:#EF4444;padding:0.1rem 0.4rem;border-radius:10px;font-size:0.75rem;margin-left:0.25rem"></span>
+                        </button>
+                        <button class="btn btn-outline" id="logoutBtn" style="background:rgba(255,255,255,0.2);color:white;border:none;padding:0.5rem 1rem">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="display:flex;gap:0;background:white;border-bottom:1px solid #E5E7EB;overflow-x:auto;position:sticky;top:143px;z-index:98">
+            <div class="container" style="display:flex;gap:0;width:100%;padding:0">
+                <button class="dashboard-tab active" onclick="AppState.switchDashTab('browse', event)">
+                    <i class="fas fa-search"></i> Browse Events
+                </button>
+                <button class="dashboard-tab" onclick="AppState.switchDashTab('my-rsvps', event)">
+                    <i class="fas fa-check"></i> My RSVPs
+                </button>
+                <button class="dashboard-tab" id="createTab" onclick="AppState.switchDashTab('create', event)" style="display:none">
+                    <i class="fas fa-plus"></i> Create Event
+                </button>
+                <button class="dashboard-tab" id="pendingTab" onclick="AppState.switchDashTab('pending', event)" style="display:none">
+                    <i class="fas fa-clipboard-list"></i> Pending
+                </button>
+                <button class="dashboard-tab" id="usersTab" onclick="AppState.switchDashTab('users', event)" style="display:none">
+                    <i class="fas fa-users"></i> Manage Users
+                </button>
+                <button class="dashboard-tab" onclick="AppState.switchDashTab('notifications', event)">
+                    <i class="fas fa-bell"></i> Notifications
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Browse Tab -->
+            <div class="dashboard-panel active" id="browsePanel">
+                <div style="margin-bottom:1.5rem">
+                    <input class="form-input" type="text" id="dashSearchInput" placeholder="Search events...">
+                </div>
+                <div id="dashEventsContainer"></div>
+            </div>
+
+            <!-- My RSVPs Tab -->
+            <div class="dashboard-panel" id="rsvpsPanel">
+                <h3 style="margin:0 0 1rem 0">Events You're Attending</h3>
+                <div id="dashRsvpsContainer"></div>
+            </div>
+
+            <!-- Create Event Tab (Organizer) -->
+            <div class="dashboard-panel" id="createPanel">
+                <h3 style="margin:0 0 1rem 0">Create New Event</h3>
+                <div class="card">
+                    <form id="eventForm">
+                        <div class="form-group">
+                            <label class="form-label">Event Title *</label>
+                            <input class="form-input" type="text" id="evTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Description *</label>
+                            <textarea class="form-textarea" id="evDescription" rows="4" required></textarea>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                            <div class="form-group">
+                                <label class="form-label">Date *</label>
+                                <input class="form-input" type="date" id="evDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Time *</label>
+                                <input class="form-input" type="time" id="evTime" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Location *</label>
+                            <input class="form-input" type="text" id="evLocation" required>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                            <div class="form-group">
+                                <label class="form-label">Category *</label>
+                                <select class="form-input" id="evCategory" required>
+                                    <option value="">Select category</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="cultural">Cultural</option>
+                                    <option value="career">Career</option>
+                                    <option value="sports">Sports</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tags (comma-separated)</label>
+                                <input class="form-input" type="text" id="evTags" placeholder="e.g. Networking, Workshop">
+                            </div>
+                        </div>
+                        <div class="form-error" id="createError"></div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;padding:0.75rem;margin-top:1rem">Submit for Approval</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Pending Events Tab (Admin) -->
+            <div class="dashboard-panel" id="pendingPanel">
+                <h3 style="margin:0 0 1rem 0">Pending Event Reviews</h3>
+                <div id="dashPendingContainer"></div>
+            </div>
+
+            <!-- Manage Users Tab (Admin) -->
+            <div class="dashboard-panel" id="usersPanel">
+                <h3 style="margin:0 0 1rem 0">Manage Users</h3>
+                <div class="card" style="overflow-x:auto">
+                    <table style="width:100%;border-collapse:collapse">
+                        <thead>
+                            <tr style="border-bottom:2px solid #E5E7EB">
+                                <th style="text-align:left;padding:0.75rem;font-weight:600">Username</th>
+                                <th style="text-align:left;padding:0.75rem;font-weight:600">Role</th>
+                                <th style="text-align:left;padding:0.75rem;font-weight:600">Joined</th>
+                                <th style="text-align:left;padding:0.75rem;font-weight:600">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashUsersTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Notifications Tab -->
+            <div class="dashboard-panel" id="notificationsPanel">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+                    <h3 style="margin:0">Notifications</h3>
+                    <button class="btn btn-outline btn-sm" id="markAllReadBtn" onclick="AppState.markAllRead()" style="padding:0.5rem 1rem">Mark All Read</button>
+                </div>
+                <div id="dashNotificationsContainer"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- hero section -->
     <section class="hero" id="home">
@@ -42,7 +539,41 @@
                 </p>
                 <div class="hero-actions">
                     <a href="#events" class="btn btn-primary btn-lg">Browse Events</a>
-                    <a href="../Alternate%20Pages/Login/Login%20page/Account_type.html" class="btn btn-outline btn-lg">Create Event</a>
+                    <button class="btn btn-outline btn-lg" onclick="AppState.openAuthTab('register')" style="background:transparent;border:2px solid white;color:white;cursor:pointer">Create Event</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Events Section -->
+    <section class="featured-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">🔥 Trending Now</h2>
+                <p class="section-subtitle">Most popular events this season</p>
+            </div>
+            <div class="featured-grid" id="featuredEvents">
+                <!-- populated by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Calendar Snippet Section -->
+    <section class="calendar-section">
+        <div class="container">
+            <div class="calendar-wrapper">
+                <div class="calendar-info">
+                    <h2 class="section-title" style="margin-top:0">See What's Happening</h2>
+                    <p class="section-subtitle">Events coming up this month</p>
+                    <div class="calendar-mini" id="calendarMini">
+                        <!-- populated by JS -->
+                    </div>
+                </div>
+                <div class="calendar-events">
+                    <h3 style="margin-top:0;color:var(--dark-color)">Upcoming This Month</h3>
+                    <div class="events-timeline" id="timelineEvents">
+                        <!-- populated by JS -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -107,122 +638,10 @@
     </footer>
 
     <script src="../Alternate%20Pages/Shared/data.js"></script>
+    <script src="app.js"></script>
     <script>
-        // ── Auth-aware navbar ────────────────────────────────────────────────
-        const currentUser = CampusData.getCurrentUser();
-        const navActions  = document.getElementById('navActions');
-
-        const LOGIN_PATH   = '../Alternate%20Pages/Login/Login%20page/Login.html';
-        const SIGNUP_PATH  = '../Alternate%20Pages/Login/Login%20page/Account_type.html';
-        const DASHBOARDS   = {
-            student:   '../Alternate%20Pages/Dashboard/student_dashboard.html',
-            organizer: '../Alternate%20Pages/Dashboard/organizer_dashboard.html',
-            admin:     '../Alternate%20Pages/Dashboard/admin_dashboard.html'
-        };
-
-        if (currentUser) {
-            const dashPath = DASHBOARDS[currentUser.role] || DASHBOARDS.student;
-            navActions.innerHTML = `
-                <a href="${dashPath}" class="btn btn-outline">Dashboard</a>
-                <button class="btn btn-primary" id="logoutBtn">Logout</button>`;
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                CampusData.logout();
-                window.location.reload();
-            });
-        } else {
-            navActions.innerHTML = `
-                <a href="${LOGIN_PATH}"  class="btn btn-outline">Login</a>
-                <a href="${SIGNUP_PATH}" class="btn btn-primary">Sign Up</a>`;
-        }
-
-        // ── Event rendering ───────────────────────────────────────────────────
-        const formatDate = d => CampusData.formatDate(d);
-        const formatTime = t => CampusData.formatTime(t);
-
-        function isToday(dateStr) {
-            const today = new Date(); today.setHours(0,0,0,0);
-            const d     = new Date(dateStr + 'T00:00:00');
-            return d.getTime() === today.getTime();
-        }
-        function isThisWeek(dateStr) {
-            const now  = new Date(); now.setHours(0,0,0,0);
-            const d    = new Date(dateStr + 'T00:00:00');
-            const diff = (d - now) / (1000 * 60 * 60 * 24);
-            return diff >= 0 && diff < 7;
-        }
-        function isThisMonth(dateStr) {
-            const now = new Date();
-            const d   = new Date(dateStr + 'T00:00:00');
-            return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
-        }
-
-        function renderEvents() {
-            const query    = document.getElementById('searchInput').value.toLowerCase();
-            const category = document.getElementById('categoryFilter').value;
-            const date     = document.getElementById('dateFilter').value;
-
-            let events = CampusData.getApprovedEvents();
-
-            if (query) events = events.filter(e =>
-                e.title.toLowerCase().includes(query) ||
-                e.description.toLowerCase().includes(query) ||
-                e.location.toLowerCase().includes(query)
-            );
-            if (category) events = events.filter(e => e.category === category);
-            if (date === 'today')      events = events.filter(e => isToday(e.date));
-            if (date === 'this-week')  events = events.filter(e => isThisWeek(e.date));
-            if (date === 'this-month') events = events.filter(e => isThisMonth(e.date));
-
-            const grid   = document.getElementById('eventsGrid');
-            const noMsg  = document.getElementById('noEventsMsg');
-
-            if (events.length === 0) {
-                grid.innerHTML = '';
-                noMsg.style.display = 'block';
-                return;
-            }
-            noMsg.style.display = 'none';
-
-            const detailHref = currentUser
-                ? DASHBOARDS[currentUser.role] || DASHBOARDS.student
-                : LOGIN_PATH;
-
-            grid.innerHTML = events.map(ev => `
-                <article class="event-card">
-                    <div class="event-image">
-                        <img src="https://placehold.co/400x250?text=${encodeURIComponent(ev.category)}" alt="${ev.title}">
-                        <span class="event-badge badge-success">Approved</span>
-                    </div>
-                    <div class="event-content">
-                        <div class="event-meta">
-                            <span class="event-date"><i class="far fa-calendar"></i> ${formatDate(ev.date)}</span>
-                            <span class="event-time"><i class="far fa-clock"></i> ${formatTime(ev.time)}</span>
-                        </div>
-                        <h3 class="event-title">${ev.title}</h3>
-                        <p class="event-description">${ev.description}</p>
-                        <div class="event-footer">
-                            <div class="event-location">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span>${ev.location}</span>
-                            </div>
-                            <div class="event-attendees">
-                                <i class="fas fa-users"></i>
-                                <span>${ev.attendeeCount} attending</span>
-                            </div>
-                        </div>
-                        <div class="event-tags">
-                            ${(ev.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}
-                        </div>
-                        <a href="${detailHref}" class="btn btn-primary btn-block">View Details</a>
-                    </div>
-                </article>`).join('');
-        }
-
-        document.getElementById('searchInput').addEventListener('input', renderEvents);
-        document.getElementById('categoryFilter').addEventListener('change', renderEvents);
-        document.getElementById('dateFilter').addEventListener('change', renderEvents);
-
-        renderEvents();
+        // Initialize app on load
+        AppState.init();
     </script>
 </body>
 </html>

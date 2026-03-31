@@ -16,26 +16,84 @@ const CampusData = {
         this.saveUsers(users);
 
         const events = [
+            // Technology (3)
             {
                 id: 'ev_1', title: 'Tech Innovation Summit',
-                description: 'Join us for an inspiring day of technology talks and networking opportunities.',
-                date: '2026-03-25', time: '14:00', location: 'Student Center, Room 301',
+                description: 'Join us for an inspiring day of technology talks and networking opportunities with industry leaders.',
+                date: '2026-04-05', time: '14:00', location: 'Student Center, Room 301',
                 category: 'technology', organizerId: 'u_org1', organizerName: 'organizer',
-                status: 'approved', attendeeCount: 45, tags: ['Technology', 'Networking'], createdAt: now
+                status: 'approved', attendeeCount: 87, tags: ['AI', 'Networking', 'Tech'], createdAt: now
             },
             {
-                id: 'ev_2', title: 'Cultural Night Festival',
-                description: 'Celebrate diversity with food, music, and performances from around the world.',
-                date: '2026-03-28', time: '18:00', location: 'Main Auditorium',
-                category: 'cultural', organizerId: 'u_org1', organizerName: 'organizer',
-                status: 'pending', attendeeCount: 0, tags: ['Cultural', 'Entertainment'], createdAt: now
+                id: 'ev_2', title: 'Web Development Workshop',
+                description: 'Learn React, Node.js, and modern web development practices from seasoned developers.',
+                date: '2026-04-02', time: '10:00', location: 'Tech Lab, Building B',
+                category: 'technology', organizerId: 'u_org1', organizerName: 'organizer',
+                status: 'approved', attendeeCount: 62, tags: ['Web Dev', 'Workshop'], createdAt: now
             },
+            {
+                id: 'ev_6', title: 'Hackathon 2026',
+                description: '24-hour coding challenge with prizes, mentorship, and potential job offers from tech companies.',
+                date: '2026-04-20', time: '09:00', location: 'Engineering Building',
+                category: 'technology', organizerId: 'u_org1', organizerName: 'organizer',
+                status: 'approved', attendeeCount: 156, tags: ['Coding', 'Hackathon', 'Prizes'], createdAt: now
+            },
+
+            // Cultural (2)
+            {
+                id: 'ev_7', title: 'Cultural Night Festival',
+                description: 'Celebrate diversity with food, music, and performances from around the world.',
+                date: '2026-03-31', time: '18:00', location: 'Main Auditorium',
+                category: 'cultural', organizerId: 'u_org1', organizerName: 'organizer',
+                status: 'approved', attendeeCount: 234, tags: ['Diversity', 'Entertainment', 'Music'], createdAt: now
+            },
+            {
+                id: 'ev_11', title: 'International Food Tasting',
+                description: 'Sample cuisines from 15+ countries. Hosted by international student organizations.',
+                date: '2026-04-25', time: '17:00', location: 'Student Dining Hall',
+                category: 'cultural', organizerId: 'u_org1', organizerName: 'organizer',
+                status: 'approved', attendeeCount: 312, tags: ['Food', 'International'], createdAt: now
+            },
+
+            // Career (2)
             {
                 id: 'ev_3', title: 'Career Fair 2026',
                 description: 'Meet with top employers and explore internship and career opportunities.',
                 date: '2026-04-01', time: '10:00', location: 'Recreation Center',
                 category: 'career', organizerId: 'u_org1', organizerName: 'organizer',
-                status: 'approved', attendeeCount: 200, tags: ['Career', 'Professional'], createdAt: now
+                status: 'approved', attendeeCount: 289, tags: ['Career', 'Jobs', 'Internships'], createdAt: now
+            },
+            {
+                id: 'ev_12', title: 'Resume & LinkedIn Workshop',
+                description: 'Professional tips on crafting resumes and optimizing your LinkedIn profile for employers.',
+                date: '2026-04-04', time: '14:00', location: 'Career Center',
+                category: 'career', organizerId: 'u_org1', organizerName: 'organizer',
+                status: 'approved', attendeeCount: 94, tags: ['Resume', 'LinkedIn'], createdAt: now
+            },
+
+            // Sports (2)
+            {
+                id: 'ev_16', title: 'Campus 5K Run',
+                description: 'Join the community for a fun 5K run around campus. All fitness levels welcome!',
+                date: '2026-04-09', time: '07:00', location: 'Main Campus Lawn',
+                category: 'sports', organizerId: 'u_org1', organizerName: 'organizer',
+                status: 'approved', attendeeCount: 267, tags: ['Running', 'Fitness'], createdAt: now
+            },
+            {
+                id: 'ev_17', title: 'Volleyball League Championships',
+                description: 'Finals of the intramural volleyball league with team matches and awards.',
+                date: '2026-04-16', time: '18:30', location: 'Gymnasium',
+                category: 'sports', organizerId: 'u_org1', organizerName: 'organizer',
+                status: 'approved', attendeeCount: 189, tags: ['Volleyball', 'Sports'], createdAt: now
+            },
+
+            // Other (1)
+            {
+                id: 'ev_21', title: 'Volunteer Service Day',
+                description: 'Join your community in environmental cleanup and service projects around campus.',
+                date: '2026-04-21', time: '09:00', location: 'Campus Grounds',
+                category: 'other', organizerId: 'u_org1', organizerName: 'organizer',
+                status: 'approved', attendeeCount: 178, tags: ['Volunteering', 'Community'], createdAt: now
             }
         ];
         this.saveEvents(events);
