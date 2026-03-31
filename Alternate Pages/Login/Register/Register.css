@@ -28,39 +28,28 @@
     --font-size-2xl: 1.5rem;
     --font-size-3xl: 1.875rem;
     --font-size-4xl: 2.25rem;
+
     --line-height-base: 1.5;
-    --line-height-heading: 1.2;
 
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
-    --spacing-2xl: 3rem;
-    --spacing-3xl: 4rem;
 
     --radius-sm: 0.25rem;
     --radius-md: 0.5rem;
     --radius-lg: 0.75rem;
     --radius-xl: 1rem;
-    --radius-full: 9999px;
 
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 18px 45px rgba(67, 56, 202, 0.18);
 
     --transition-fast: 0.2s ease;
     --transition-base: 0.3s ease;
-    --transition-slow: 0.45s ease;
 
     --max-width: 1200px;
     --navbar-height: 70px;
-
-    /* Added for login page */
-    --card: #FFFFFF;
-    --border: #D1D5DB;
-    --text: #1F2937;
 }
 
 * {
@@ -80,6 +69,7 @@ body {
     color: var(--gray-800);
     background-color: var(--white);
     overflow-x: hidden;
+    min-height: 100vh;
 }
 
 img {
@@ -112,112 +102,48 @@ button {
     padding: 0 var(--spacing-md);
 }
 
-.text-center {
-    text-align: center;
-}
-
+/* NAVBAR */
 .navbar {
-    background-color: var(--white);
-    box-shadow: var(--shadow-sm);
+    height: var(--navbar-height);
     position: sticky;
     top: 0;
     z-index: 1000;
-    height: var(--navbar-height);
+    background: rgba(255, 255, 255, 0.88);
     backdrop-filter: blur(10px);
-    background: rgba(255,255,255,0.85);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
 }
 
 .nav-wrapper {
+    height: var(--navbar-height);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: var(--navbar-height);
 }
 
 .nav-brand {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: 8px;
     font-size: var(--font-size-xl);
     font-weight: 700;
     color: var(--primary-color);
 }
+
 .nav-brand i {
     font-size: 1.5rem;
 }
 
-.nav-toggle {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    padding: var(--spacing-sm);
-    z-index: 1001;
-}
-
-.nav-toggle span {
-    width: 25px;
-    height: 3px;
-    background-color: var(--gray-700);
-    border-radius: var(--radius-sm);
-    transition: var(--transition-base);
-}
-
-.nav-menu {
-    display: none;
-}
-
-.nav-actions {
-    display: none;
-}
-
-@media (min-width: 768px) {
-    .nav-toggle {
-        display: none;
-    }
-
-    .nav-menu {
-        display: flex;
-        gap: var(--spacing-lg);
-        align-items: center;
-    }
-
-    .nav-link {
-        color: var(--gray-700);
-        font-weight: 500;
-        padding: var(--spacing-sm) var(--spacing-md);
-        border-radius: var(--radius-md);
-        transition: var(--transition-fast);
-    }
-
-    .nav-link:hover,
-    .nav-link.active {
-        color: var(--primary-color);
-        background-color: var(--gray-50);
-    }
-
-    .nav-actions {
-        display: flex;
-        gap: var(--spacing-md);
-        align-items: center;
-    }
-}
-
-/* =========================
-   LOGIN PAGE FIXED STYLES
-   ========================= */
-
+/* PAGE WRAPPER */
 .login-page {
     width: 100%;
     min-height: calc(100vh - var(--navbar-height));
-
     display: flex;
     justify-content: center;
     align-items: center;
-
     padding: 40px 20px;
     position: relative;
     overflow: hidden;
-
     background:
         radial-gradient(circle at top left, rgba(129, 140, 248, 0.55), transparent 35%),
         radial-gradient(circle at bottom right, rgba(79, 70, 229, 0.55), transparent 35%),
@@ -228,109 +154,90 @@ button {
     content: "";
     position: absolute;
     inset: 0;
+    background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    background: rgba(255, 255, 255, 0.08);
 }
 
-.Login-box,
-.Forgot_box {
+/* CARDS */
+.Register-box,
+.Account_type {
     position: relative;
     z-index: 1;
     width: 100%;
     max-width: 400px;
-    background: rgba(255, 255, 255, 0.82);
-    padding: 32px 28px;
-    border-radius: 18px;
-    box-shadow: 0 18px 45px rgba(67, 56, 202, 0.18);
+    background: rgba(255, 255, 255, 0.84);
     border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 18px;
+    box-shadow: var(--shadow-lg);
+    padding: 32px 28px;
     text-align: center;
 }
 
-.Login-box h2,
-.Forgot_box h2 {
+.Register-box h2,
+.Account_type h2 {
     margin-bottom: 10px;
     font-size: 28px;
     color: var(--primary-color);
 }
 
-.subtitle {
+/* REGISTER PAGE */
+#roleLabel {
     color: var(--gray-600);
     font-size: 14px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 }
 
-.Login-box input,
-.Forgot_Email {
-    width: 100%;
-    padding: 12px 14px;
-    margin: 10px 0;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 15px;
-    outline: none;
-    transition: 0.2s ease;
-    background: rgba(255, 255, 255, 0.92);
-    color: var(--text);
-}
-
-.Login-box input:focus,
-.Forgot_Email:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
-}
-
-.Login-box button,
-.SEmail {
-    width: 100%;
-    padding: 12px;
-    margin-top: 12px;
-    border: none;
-    border-radius: 10px;
-    background: var(--primary-color);
-    color: white;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
-
-.Login-box button:hover,
-.SEmail:hover {
-    background: var(--primary-dark);
-}
-
-.SmallBtn {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    margin-top: 16px;
-    flex-wrap: wrap;
-}
-
-.link-btn {
-    background: none !important;
-    border: none;
-    color: var(--primary-color) !important;  /* 👈 force purple */
-    font-size: 13px;
-    cursor: pointer;
-    text-decoration: underline;
-    width: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-.link-btn:hover {
-    color: var(--primary-dark) !important;
-}
-
-#loginError {
+#registerError {
     color: var(--danger-color);
     font-size: 13px;
     margin-bottom: 8px;
     display: none;
 }
 
+.Register-box input {
+    width: 100%;
+    padding: 12px 14px;
+    margin: 10px 0;
+    border: 1px solid var(--gray-300);
+    border-radius: 10px;
+    font-size: 15px;
+    outline: none;
+    transition: var(--transition-fast);
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--gray-800);
+}
+
+.Register-box input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.Register-box button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 10px;
+    background: var(--primary-color);
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.Register-box button:hover {
+    background: var(--primary-dark);
+}
+
+.Already {
+    margin-top: 16px;
+    text-align: center;
+}
+
+
+/* ACCOUNT TYPE PAGE */
 .Back_Arrow {
     display: flex;
     justify-content: flex-start;
@@ -349,4 +256,55 @@ button {
 
 .Arrow:hover {
     color: var(--primary-dark);
+}
+
+.Choice {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.type-btn {
+    flex: 1;
+    padding: 14px 16px;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary-color);
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.type-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+    .Choice {
+        flex-direction: column;
+    }
+
+    .Register-box,
+    .Account_type {
+        padding: 28px 20px;
+    }
+}
+.link-btn {
+    background: none !important;
+    border: none;
+    color: var(--primary-color) !important;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    width: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-family: inherit;
+}
+ 
+.link-btn:hover {
+    color: var(--primary-dark) !important;
 }
