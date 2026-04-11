@@ -1,0 +1,11 @@
+{
+  "entry": [
+    "Main Page/index.html",
+    "Main Page/app.js",
+    "Alternate Pages/**/*.js",
+    "Alternate Pages/**/*.html"
+  ],
+  "ignore": [
+    "node_modules"
+  ]
+}
