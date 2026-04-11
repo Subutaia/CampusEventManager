@@ -13,7 +13,7 @@ if (roleLabel) {
 document.getElementById("Register").addEventListener("click", handleRegister);
 
 // Enter key support + clear error
-["usernameInput", "passwordInput"].forEach(id => {
+["usernameInput", "emailInput", "passwordInput"].forEach(id => {
     const el = document.getElementById(id);
 
     if (el) {
@@ -36,10 +36,18 @@ document.getElementById("HaveAccount").addEventListener("click", () => {
 // ==========================
 function handleRegister() {
     const username = document.getElementById("usernameInput").value.trim();
+    const email = document.getElementById("emailInput").value.trim();
     const password = document.getElementById("passwordInput").value;
 
-    if (!username || !password) {
+    if (!username || !email || !password) {
         showError("Please fill in all fields.");
+        return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showError("Please enter a valid email address.");
         return;
     }
 
@@ -48,27 +56,46 @@ function handleRegister() {
         return;
     }
 
-    if (CampusData.getUserByUsername(username)) {
-        showError("That username is already taken.");
-        return;
-    }
+    // Send registration to backend API
+    fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            username,
+            email,
+            password,
+            role: pendingRole
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) {
+            showError(data.error || "Registration failed");
+            return;
+        }
 
-    const user = CampusData.addUser({
-        username,
-        password,
-        role: pendingRole
+        // Registration successful
+        sessionStorage.removeItem("cem_pending_role");
+        
+        // Store token and user info
+        localStorage.setItem("cem_token", data.data.token);
+        localStorage.setItem("cem_user", JSON.stringify(data.data.user));
+
+        // Navigate to dashboard based on role
+        const dashboards = {
+            student: "../../Dashboard/student_dashboard.html",
+            organizer: "../../Dashboard/organizer_dashboard.html",
+            admin: "../../Dashboard/admin_dashboard.html"
+        };
+
+        window.location.href = dashboards[pendingRole] || dashboards.student;
+    })
+    .catch(err => {
+        console.error("Registration error:", err);
+        showError("An error occurred during registration. Please try again.");
     });
-
-    sessionStorage.removeItem("cem_pending_role");
-    CampusData.setCurrentUser(user);
-
-    const dashboards = {
-        student: "../../Dashboard/student_dashboard.html",
-        organizer: "../../Dashboard/organizer_dashboard.html",
-        admin: "../../Dashboard/admin_dashboard.html"
-    };
-
-    window.location.href = dashboards[user.role] || dashboards.student;
 }
 
 // ==========================

@@ -11,11 +11,17 @@ const router = express.Router();
  */
 router.post('/register', async (req, res) => {
   try {
-    const { username, password, role = 'student' } = req.body;
+    const { username, email, password, role = 'student' } = req.body;
 
     // Validation
-    if (!username || !password) {
-      return errorResponse(res, 'Username and password are required', 400);
+    if (!username || !email || !password) {
+      return errorResponse(res, 'Username, email, and password are required', 400);
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return errorResponse(res, 'Invalid email format', 400);
     }
 
     if (password.length < 8) {
@@ -28,8 +34,14 @@ router.post('/register', async (req, res) => {
       return errorResponse(res, 'Username already exists', 400);
     }
 
+    // Check if email already registered
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return errorResponse(res, 'Email already registered', 400);
+    }
+
     // Create user
-    const user = new User({ username, password, role });
+    const user = new User({ username, email, password, role });
     await user.save();
 
     // Generate token
