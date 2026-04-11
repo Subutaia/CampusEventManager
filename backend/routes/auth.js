@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/User.js';
 import { generateToken } from '../middleware/auth.js';
 import { successResponse, errorResponse } from '../middleware/error.js';
+import { sendRegistrationEmail } from '../services/emailService.js';
 
 const router = express.Router();
 
@@ -12,6 +13,8 @@ const router = express.Router();
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password, role = 'student' } = req.body;
+
+    console.log('📝 Registration attempt:', { username, email, role });
 
     // Validation
     if (!username || !email || !password) {
@@ -31,18 +34,28 @@ router.post('/register', async (req, res) => {
     // Check if user exists
     const existingUser = await User.findOne({ username });
     if (existingUser) {
+      console.log('❌ Username already exists:', username);
       return errorResponse(res, 'Username already exists', 400);
     }
 
     // Check if email already registered
     const existingEmail = await User.findOne({ email });
+    console.log('🔍 Email check for', email, '- Found:', existingEmail ? 'YES' : 'NO');
     if (existingEmail) {
+      console.log('❌ Email already registered:', email);
       return errorResponse(res, 'Email already registered', 400);
     }
 
     // Create user
     const user = new User({ username, email, password, role });
     await user.save();
+
+    console.log('✅ User registered:', username);
+
+    // Send registration email (async, don't wait for it)
+    sendRegistrationEmail(user).catch(err => {
+      console.error('Email send failed (non-blocking):', err.message);
+    });
 
     // Generate token
     const token = generateToken(user);

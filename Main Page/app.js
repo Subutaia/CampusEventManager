@@ -104,31 +104,66 @@ const AppState = {
             return;
         }
 
-        const user = CampusData.getUserByUsername(username);
-        if (!user || user.password !== password) {
-            this.showError(errorEl, 'Invalid username or password.');
-            return;
-        }
+        // Login via backend API
+        fetch('http://localhost:5000/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username,
+                password
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                this.showError(errorEl, data.error || 'Login failed');
+                return;
+            }
 
-        this.currentUser = user;
-        CampusData.setCurrentUser(user);
-        this.closeModal();
-        this.renderUI();
-        this.showDashboard();
-        this.renderDashboard();
+            // Store token and user info
+            localStorage.setItem('cem_token', data.data.token);
+            localStorage.setItem('cem_user', JSON.stringify(data.data.user));
+
+            // Update current user
+            this.currentUser = data.data.user;
+            
+            // Clear form
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+            
+            this.closeModal();
+            this.renderUI();
+            this.showDashboard();
+            this.renderDashboard();
+        })
+        .catch(err => {
+            console.error('Login error:', err);
+            this.showError(errorEl, 'An error occurred. Please try again.');
+        });
     },
 
     handleRegister() {
         const username = document.getElementById('regUsername').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
         const password = document.getElementById('regPassword').value;
         const confirm = document.getElementById('regConfirm').value;
         const errorEl = document.getElementById('registerError');
         const role = document.querySelector('input[name="role"]:checked').value;
 
-        if (!username || !password || !confirm) {
+        if (!username || !email || !password || !confirm) {
             this.showError(errorEl, 'Please fill in all fields.');
             return;
         }
+
+        // Validate email format
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            this.showError(errorEl, 'Please enter a valid email address.');
+            return;
+        }
+
         if (password !== confirm) {
             this.showError(errorEl, 'Passwords do not match.');
             return;
@@ -137,24 +172,49 @@ const AppState = {
             this.showError(errorEl, 'Password must be at least 8 characters.');
             return;
         }
-        if (CampusData.getUserByUsername(username)) {
-            this.showError(errorEl, 'This username is already taken.');
-            return;
-        }
 
-        const user = CampusData.addUser({ username, password, role });
-        this.currentUser = user;
-        CampusData.setCurrentUser(user);
-        
-        // Clear form
-        document.getElementById('regUsername').value = '';
-        document.getElementById('regPassword').value = '';
-        document.getElementById('regConfirm').value = '';
-        
-        this.closeModal();
-        this.renderUI();
-        this.showDashboard();
-        this.renderDashboard();
+        // Register via backend API
+        fetch('http://localhost:5000/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username,
+                email,
+                password,
+                role
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                this.showError(errorEl, data.error || 'Registration failed');
+                return;
+            }
+
+            // Store token and user info
+            localStorage.setItem('cem_token', data.data.token);
+            localStorage.setItem('cem_user', JSON.stringify(data.data.user));
+
+            // Update current user
+            this.currentUser = data.data.user;
+            
+            // Clear form
+            document.getElementById('regUsername').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regPassword').value = '';
+            document.getElementById('regConfirm').value = '';
+            
+            this.closeModal();
+            this.renderUI();
+            this.showDashboard();
+            this.renderDashboard();
+        })
+        .catch(err => {
+            console.error('Registration error:', err);
+            this.showError(errorEl, 'An error occurred. Please try again.');
+        });
     },
 
     handleLogout() {
