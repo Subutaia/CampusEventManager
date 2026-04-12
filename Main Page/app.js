@@ -3,6 +3,16 @@
  * Handles authentication, dashboard rendering, and navigation
  */
 
+// API Configuration - Change based on environment
+const API_BASE_URL = (() => {
+    // Local development - Cloudflare Workers local dev server
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:8787'; // Cloudflare Workers dev server
+    }
+    // Production - Cloudflare Workers deployed endpoint
+    return 'https://campus-event-manager-worker.memelord801.workers.dev';
+})();
+
 const AppState = {
     currentUser: null,
     currentAuthTab: 'login',
@@ -105,7 +115,7 @@ const AppState = {
         }
 
         // Login via backend API
-        fetch('http://localhost:5000/api/auth/login', {
+        fetch(`${API_BASE_URL}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -174,7 +184,7 @@ const AppState = {
         }
 
         // Register via backend API
-        fetch('http://localhost:5000/api/auth/register', {
+        fetch(`${API_BASE_URL}/api/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
