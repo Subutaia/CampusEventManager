@@ -275,3 +275,76 @@ body { font-family: var(--font); background: var(--light); color: var(--dark); m
     .tab-btn      { padding: 0.7rem 0.9rem; font-size: 0.83rem; }
     .dash-nav     { padding: 0.65rem 1rem; }
 }
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.analytics-stat-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.2rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.analytics-stat-card h3 {
+    margin: 0 0 0.6rem 0;
+    font-size: 0.95rem;
+    color: #666;
+    font-weight: 600;
+}
+
+.analytics-stat-card p {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #222;
+}
+
+.analytics-sections {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.analytics-card h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.analytics-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.analytics-row:last-child {
+    border-bottom: none;
+}
+
+.analytics-event-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.analytics-event-card:last-child {
+    border-bottom: none;
+}
+
+.analytics-subtext {
+    font-size: 0.9rem;
+    color: #777;
+    margin-top: 0.2rem;
+}
+
+.analytics-rsvp {
+    font-weight: 700;
+    color: #333;
+}
