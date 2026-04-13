@@ -1,0 +1,21 @@
+{
+  "name": "campus-event-manager-worker",
+  "version": "1.0.0",
+  "description": "Campus Event Management System - Cloudflare Workers Backend",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler publish --env production"
+  },
+  "dependencies": {
+    "@sendgrid/mail": "^7.7.0",
+    "bcryptjs": "^2.4.3",
+    "hono": "^3.11.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^7.1.1"
+  },
+  "devDependencies": {
+    "wrangler": "^3.20.0"
+  }
+}

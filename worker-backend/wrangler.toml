@@ -1,0 +1,12 @@
+name = "campus-event-manager-worker"
+main = "src/index.js"
+compatibility_date = "2024-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "campus-event-manager"
+
+[vars]
+DB_NAME = "CampusEventManager"
+SENDER_EMAIL = "noreply@campuseventmanager.com"
+NODE_ENV = "production"
