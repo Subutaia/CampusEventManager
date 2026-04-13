@@ -26,7 +26,6 @@
 <!-- Tab Bar -->
 <div class="tab-bar">
     <button class="tab-btn active" data-tab="my-events">My Events</button>
-    <button class="tab-btn" data-tab="analytics">Analytics</button>
     <button class="tab-btn" data-tab="create">Create Event</button>
     <button class="tab-btn" data-tab="notifications">Notifications</button>
 </div>
@@ -38,12 +37,6 @@
     <div class="tab-panel active" id="tab-my-events">
         <h2 class="page-title">My Events</h2>
         <div id="myEventsContainer"></div>
-    </div>
-
-    <!-- Analytics -->
-    <div class="tab-panel" id="tab-analytics">
-        <h2 class="page-title">Analytics</h2>
-        <div id="analyticsContainer"></div>
     </div>
 
     <!-- Create / Edit Event -->
@@ -141,16 +134,12 @@
     function switchTab(name) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-
         const btn = document.querySelector(`[data-tab="${name}"]`);
         if (btn) btn.classList.add('active');
-
         const panel = document.getElementById('tab-' + name);
         if (panel) panel.classList.add('active');
-
         if (name === 'notifications') renderNotifications();
-        if (name === 'my-events') renderMyEvents();
-        if (name === 'analytics') renderAnalytics();
+        if (name === 'my-events')     renderMyEvents();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -168,21 +157,13 @@
     function renderMyEvents() {
         const events = CampusData.getEventsByOrganizer(user.id);
         const container = document.getElementById('myEventsContainer');
-
         if (events.length === 0) {
             container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-plus"></i><p>No events yet. Create your first event!</p></div>';
             return;
         }
-
         container.innerHTML = events.map(ev => {
             const rsvpCount = CampusData.getRSVPsByEvent(ev.id).length;
-            const badgeClass =
-                ev.status === 'approved'
-                    ? 'badge-success'
-                    : ev.status === 'rejected'
-                    ? 'badge-danger'
-                    : 'badge-warning';
-
+            const badgeClass = ev.status === 'approved' ? 'badge-success' : ev.status === 'rejected' ? 'badge-danger' : 'badge-warning';
             return `
             <div class="card">
                 <div class="card-header">
@@ -212,20 +193,17 @@
     function editEvent(eventId) {
         const ev = CampusData.getEventById(eventId);
         if (!ev) return;
-
-        document.getElementById('editEventId').value = ev.id;
-        document.getElementById('evTitle').value = ev.title;
-        document.getElementById('evDescription').value = ev.description;
-        document.getElementById('evDate').value = ev.date;
-        document.getElementById('evTime').value = ev.time;
-        document.getElementById('evLocation').value = ev.location;
-        document.getElementById('evCategory').value = ev.category;
-        document.getElementById('evTags').value = (ev.tags || []).join(', ');
-
-        document.getElementById('formTitle').textContent = 'Edit Event';
-        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Save Changes';
+        document.getElementById('editEventId').value    = ev.id;
+        document.getElementById('evTitle').value        = ev.title;
+        document.getElementById('evDescription').value  = ev.description;
+        document.getElementById('evDate').value         = ev.date;
+        document.getElementById('evTime').value         = ev.time;
+        document.getElementById('evLocation').value     = ev.location;
+        document.getElementById('evCategory').value     = ev.category;
+        document.getElementById('evTags').value         = (ev.tags || []).join(', ');
+        document.getElementById('formTitle').textContent    = 'Edit Event';
+        document.getElementById('submitBtn').innerHTML       = '<i class="fas fa-save"></i> Save Changes';
         document.getElementById('cancelEditBtn').style.display = 'inline-flex';
-
         switchTab('create');
     }
 
@@ -233,38 +211,33 @@
         if (!confirm('Delete this event? This cannot be undone.')) return;
         CampusData.deleteEvent(eventId);
         renderMyEvents();
-        renderAnalytics();
     }
 
     function resetForm() {
         document.getElementById('editEventId').value = '';
         document.getElementById('eventForm').reset();
-        document.getElementById('formTitle').textContent = 'Create New Event';
-        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Approval';
-        document.getElementById('cancelEditBtn').style.display = 'none';
-        document.getElementById('formAlert').innerHTML = '';
+        document.getElementById('formTitle').textContent       = 'Create New Event';
+        document.getElementById('submitBtn').innerHTML          = '<i class="fas fa-paper-plane"></i> Submit for Approval';
+        document.getElementById('cancelEditBtn').style.display  = 'none';
+        document.getElementById('formAlert').innerHTML          = '';
     }
 
     document.getElementById('cancelEditBtn').addEventListener('click', resetForm);
 
     document.getElementById('eventForm').addEventListener('submit', e => {
         e.preventDefault();
-
         const editId = document.getElementById('editEventId').value;
-        const tags = document.getElementById('evTags').value
-            .split(',')
-            .map(t => t.trim())
-            .filter(Boolean);
-
+        const tags   = document.getElementById('evTags').value
+            .split(',').map(t => t.trim()).filter(Boolean);
         const data = {
-            title: document.getElementById('evTitle').value.trim(),
-            description: document.getElementById('evDescription').value.trim(),
-            date: document.getElementById('evDate').value,
-            time: document.getElementById('evTime').value,
-            location: document.getElementById('evLocation').value.trim(),
-            category: document.getElementById('evCategory').value,
+            title:         document.getElementById('evTitle').value.trim(),
+            description:   document.getElementById('evDescription').value.trim(),
+            date:          document.getElementById('evDate').value,
+            time:          document.getElementById('evTime').value,
+            location:      document.getElementById('evLocation').value.trim(),
+            category:      document.getElementById('evCategory').value,
             tags,
-            organizerId: user.id,
+            organizerId:   user.id,
             organizerName: user.username
         };
 
@@ -275,10 +248,8 @@
             CampusData.addEvent(data);
             showAlert('Event submitted for approval!', 'success');
         }
-
         resetForm();
         renderMyEvents();
-        renderAnalytics();
         updateNotifBadge();
     });
 
@@ -288,164 +259,15 @@
         setTimeout(() => { el.innerHTML = ''; }, 4000);
     }
 
-    // ── Analytics ─────────────────────────────────────────────────────────────
-    function renderAnalytics() {
-        const events = CampusData.getEventsByOrganizer(user.id);
-        const container = document.getElementById('analyticsContainer');
-
-        if (!events.length) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-chart-line"></i>
-                    <p>No analytics yet. Create some events first.</p>
-                </div>
-            `;
-            return;
-        }
-
-        const totalEvents = events.length;
-        const approvedEvents = events.filter(ev => ev.status === 'approved').length;
-        const pendingEvents = events.filter(ev => ev.status === 'pending').length;
-        const rejectedEvents = events.filter(ev => ev.status === 'rejected').length;
-
-        const eventsWithRSVPs = events.map(ev => {
-            const rsvpCount = CampusData.getRSVPsByEvent(ev.id).length;
-            return { ...ev, rsvpCount };
-        });
-
-        const totalRSVPs = eventsWithRSVPs.reduce((sum, ev) => sum + ev.rsvpCount, 0);
-        const avgRSVPs = totalEvents > 0 ? (totalRSVPs / totalEvents).toFixed(1) : 0;
-
-        const sortedByRSVP = [...eventsWithRSVPs].sort((a, b) => b.rsvpCount - a.rsvpCount);
-        const topEvent = sortedByRSVP[0];
-
-        const categoryCounts = {};
-        events.forEach(ev => {
-            const cat = ev.category || 'other';
-            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
-        });
-
-        let topCategory = 'N/A';
-        let topCategoryCount = 0;
-        for (const category in categoryCounts) {
-            if (categoryCounts[category] > topCategoryCount) {
-                topCategory = category;
-                topCategoryCount = categoryCounts[category];
-            }
-        }
-
-        const now = new Date();
-        const upcomingEvents = events.filter(ev => new Date(`${ev.date}T${ev.time}`) >= now).length;
-        const pastEvents = totalEvents - upcomingEvents;
-
-        const categoryHTML = Object.entries(categoryCounts)
-            .map(([category, count]) => `
-                <div class="analytics-row">
-                    <span>${capitalize(category)}</span>
-                    <span>${count}</span>
-                </div>
-            `).join('');
-
-        const performanceHTML = sortedByRSVP.map(ev => `
-            <div class="analytics-event-card">
-                <div>
-                    <strong>${ev.title}</strong>
-                    <div class="analytics-subtext">${formatDate(ev.date)} • ${ev.location}</div>
-                </div>
-                <div class="analytics-rsvp">${ev.rsvpCount} RSVP${ev.rsvpCount !== 1 ? 's' : ''}</div>
-            </div>
-        `).join('');
-
-        const statusTotal = approvedEvents + pendingEvents + rejectedEvents;
-
-        container.innerHTML = `
-            <div class="analytics-grid">
-                <div class="analytics-stat-card">
-                    <h3>Total Events</h3>
-                    <p>${totalEvents}</p>
-                </div>
-                <div class="analytics-stat-card">
-                    <h3>Total RSVPs</h3>
-                    <p>${totalRSVPs}</p>
-                </div>
-                <div class="analytics-stat-card">
-                    <h3>Approved Events</h3>
-                    <p>${approvedEvents}</p>
-                </div>
-                <div class="analytics-stat-card">
-                    <h3>Pending Events</h3>
-                    <p>${pendingEvents}</p>
-                </div>
-                <div class="analytics-stat-card">
-                    <h3>Rejected Events</h3>
-                    <p>${rejectedEvents}</p>
-                </div>
-                <div class="analytics-stat-card">
-                    <h3>Avg RSVPs/Event</h3>
-                    <p>${avgRSVPs}</p>
-                </div>
-                <div class="analytics-stat-card">
-                    <h3>Top Event</h3>
-                    <p>${topEvent ? topEvent.title : 'N/A'}</p>
-                </div>
-                <div class="analytics-stat-card">
-                    <h3>Top Category</h3>
-                    <p>${topCategory !== 'N/A' ? capitalize(topCategory) : 'N/A'}</p>
-                </div>
-            </div>
-
-            <div class="analytics-sections">
-                <div class="card analytics-card">
-                    <h3>Status Overview</h3>
-                    <div class="analytics-row"><span>Upcoming Events</span><span>${upcomingEvents}</span></div>
-                    <div class="analytics-row"><span>Past Events</span><span>${pastEvents}</span></div>
-                    <div class="analytics-row"><span>Approved</span><span>${approvedEvents}</span></div>
-                    <div class="analytics-row"><span>Pending</span><span>${pendingEvents}</span></div>
-                    <div class="analytics-row"><span>Rejected</span><span>${rejectedEvents}</span></div>
-
-                    ${
-                        statusTotal > 0
-                            ? `
-                            <div class="analytics-progress-wrap">
-                                <div class="analytics-progress-label">Approval Rate</div>
-                                <div class="analytics-progress-bar">
-                                    <div class="analytics-progress-fill" style="width:${(approvedEvents / statusTotal) * 100}%"></div>
-                                </div>
-                                <div class="analytics-progress-text">${Math.round((approvedEvents / statusTotal) * 100)}%</div>
-                            </div>
-                            `
-                            : ''
-                    }
-                </div>
-
-                <div class="card analytics-card">
-                    <h3>Category Breakdown</h3>
-                    ${categoryHTML || '<p>No categories yet.</p>'}
-                </div>
-            </div>
-
-            <div class="card analytics-card" style="margin-top: 1.5rem;">
-                <h3>Event Performance</h3>
-                ${performanceHTML || '<p>No event performance data yet.</p>'}
-            </div>
-        `;
-    }
-
-    function capitalize(str) {
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
     // ── Notifications ─────────────────────────────────────────────────────────
     function renderNotifications() {
         const notifs = CampusData.getNotificationsForUser(user.id);
         const container = document.getElementById('notifContainer');
-
         if (notifs.length === 0) {
             container.innerHTML = '<div class="empty-state"><i class="fas fa-bell-slash"></i><p>No notifications yet.</p></div>';
             updateNotifBadge();
             return;
         }
-
         container.innerHTML = notifs.map(n => `
         <div class="notif-item ${n.read ? '' : 'unread'}" onclick="markRead('${n.id}')">
             ${!n.read ? '<div class="notif-dot"></div>' : '<div class="notif-dot-placeholder"></div>'}
@@ -454,7 +276,6 @@
                 <div class="notif-time">${new Date(n.timestamp).toLocaleString()}</div>
             </div>
         </div>`).join('');
-
         updateNotifBadge();
     }
 
@@ -470,7 +291,6 @@
 
     // ── Initial render ────────────────────────────────────────────────────────
     renderMyEvents();
-    renderAnalytics();
     updateNotifBadge();
 </script>
 </body>
