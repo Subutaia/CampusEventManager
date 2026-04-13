@@ -776,3 +776,25 @@ const AppState = {
         element.style.display = 'block';
     }
 };
+    document.getElementById('dashboardLink').addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const user = CampusData.getCurrentUser();
+
+    if (!user) {
+        // Not logged in → send to login
+        window.location.href = '../Login/Login page/Login.html';
+        return;
+    }
+
+    // Route based on role
+    if (user.role === 'admin') {
+        window.location.href = '../Dashboard/Admin/dashboard.html';
+    } 
+    else if (user.role === 'organizer') {
+        window.location.href = '../Dashboard/Organizer/dashboard.html';
+    } 
+    else if (user.role === 'student') {
+        window.location.href = '../Dashboard/Student/dashboard.html';
+    }
+});
