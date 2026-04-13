@@ -134,7 +134,7 @@ const AppState = {
 
             // Store token and user info
             localStorage.setItem('cem_token', data.data.token);
-            localStorage.setItem('cem_user', JSON.stringify(data.data.user));
+            CampusData.setCurrentUser(data.data.user);
 
             // Update current user
             this.currentUser = data.data.user;
@@ -205,7 +205,7 @@ const AppState = {
 
             // Store token and user info
             localStorage.setItem('cem_token', data.data.token);
-            localStorage.setItem('cem_user', JSON.stringify(data.data.user));
+            CampusData.setCurrentUser(data.data.user);
 
             // Update current user
             this.currentUser = data.data.user;

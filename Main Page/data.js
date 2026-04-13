@@ -245,10 +245,19 @@ const CampusData = {
         return (hr % 12 || 12) + ':' + m + ' ' + (hr >= 12 ? 'PM' : 'AM');
     },
 
-    // ── Session ──────────────────────────────────────────────────────────────
-    getCurrentUser()     { return JSON.parse(sessionStorage.getItem('cem_user') || 'null'); },
-    setCurrentUser(user) { sessionStorage.setItem('cem_user', JSON.stringify(user)); },
-    logout()             { sessionStorage.removeItem('cem_user'); }
+        // ── Session / Auth Persistence ──────────────────────────────────────────────
+    getCurrentUser() {
+        return JSON.parse(localStorage.getItem('cem_user') || 'null');
+    },
+
+    setCurrentUser(user) {
+        localStorage.setItem('cem_user', JSON.stringify(user));
+    },
+
+    logout() {
+        localStorage.removeItem('cem_user');
+        localStorage.removeItem('cem_token');
+    }
 };
 
 CampusData.init();
