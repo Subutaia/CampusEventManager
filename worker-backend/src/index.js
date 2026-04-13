@@ -29,6 +29,122 @@ app.get('/api/debug/env', (c) => {
   }, 200);
 });
 
+// Debug endpoint to list all registered users
+app.get('/api/debug/users', async (c) => {
+  try {
+    await connectDB(c.env.MONGODB_URI, c.env.DB_NAME);
+    const db = (await import('./utils/db.js')).getDB();
+    const usersCollection = db.collection('users');
+    
+    const users = await usersCollection.find({}).toArray();
+    
+    // Remove sensitive data (passwords)
+    const publicUsers = users.map(user => ({
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    }));
+    
+    return c.json({
+      totalUsers: publicUsers.length,
+      users: publicUsers
+    }, 200);
+  } catch (error) {
+    console.error('❌ Error fetching users:', error.message);
+    return c.json({
+      error: 'Could not fetch users',
+      details: error.message
+    }, 500);
+  }
+});
+
+// Debug endpoint to add users in bulk (for testing)
+app.post('/api/debug/add-users', async (c) => {
+  try {
+    const { users: newUsers } = await c.req.json();
+    
+    if (!Array.isArray(newUsers) || newUsers.length === 0) {
+      return c.json({
+        error: 'Expected array of users with username, password, email, and role'
+      }, 400);
+    }
+
+    await connectDB(c.env.MONGODB_URI, c.env.DB_NAME);
+    const { default: bcrypt } = await import('bcryptjs');
+    const db = (await import('./utils/db.js')).getDB();
+    const usersCollection = db.collection('users');
+    
+    const results = [];
+    
+    for (const user of newUsers) {
+      const { username, password, email, role = 'student' } = user;
+      
+      // Validation
+      if (!username || !password) {
+        results.push({
+          username,
+          success: false,
+          error: 'Username and password are required'
+        });
+        continue;
+      }
+
+      // Check if user exists
+      const existingUser = await usersCollection.findOne({ username });
+      if (existingUser) {
+        results.push({
+          username,
+          success: false,
+          error: 'Username already exists'
+        });
+        continue;
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user
+      const newUser = {
+        username,
+        email: email || `${username}@test.com`,
+        password: hashedPassword,
+        role,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      try {
+        const result = await usersCollection.insertOne(newUser);
+        results.push({
+          username,
+          success: true,
+          _id: result.insertedId
+        });
+      } catch (insertError) {
+        results.push({
+          username,
+          success: false,
+          error: insertError.message
+        });
+      }
+    }
+
+    return c.json({
+      message: 'Bulk user creation completed',
+      results
+    }, 201);
+  } catch (error) {
+    console.error('❌ Error adding users:', error.message);
+    return c.json({
+      error: 'Could not add users',
+      details: error.message
+    }, 500);
+  }
+});
+
 // Initialize CORS
 app.use('*', cors({
   origin: [
@@ -96,6 +212,75 @@ app.get('/api/debug/sendgrid', (c) => {
     senderEmail: 'noreply@campuseventmanager.com',
     status: c.env.SENDGRID_API_KEY && c.env.SENDGRID_API_KEY !== 'SG.YOUR_KEY_HERE' ? '✅ Configured' : '❌ Not configured'
   }, 200);
+});
+
+// Debug endpoint to test SendGrid API directly
+app.post('/api/debug/test-sendgrid-raw', async (c) => {
+  try {
+    const { email } = await c.req.json();
+    const apiKey = c.env.SENDGRID_API_KEY;
+    
+    if (!apiKey) {
+      return c.json({
+        error: 'SendGrid API key not set',
+        status: 'error'
+      }, 400);
+    }
+
+    console.log(`🧪 Testing SendGrid API directly for ${email}`);
+    
+    const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        personalizations: [{
+          to: [{ email: email }]
+        }],
+        from: {
+          email: 'noreply@campuseventmanager.com',
+          name: 'Campus Event Manager'
+        },
+        subject: 'Test Email from Raw API',
+        content: [{
+          type: 'text/html',
+          value: '<h2>Test Email</h2><p>This was sent using the raw SendGrid API.</p>'
+        }]
+      })
+    });
+
+    const status = response.status;
+    const responseText = await response.text();
+    
+    console.log(`SendGrid API Response - Status: ${status}`);
+    console.log(`Response body: ${responseText}`);
+
+    if (status === 202) {
+      return c.json({
+        success: true,
+        message: 'Email sent successfully via SendGrid API',
+        httpStatus: status,
+        recipientEmail: email
+      }, 200);
+    } else {
+      return c.json({
+        success: false,
+        message: 'SendGrid API returned non-202 status',
+        httpStatus: status,
+        responseBody: responseText,
+        recipientEmail: email
+      }, status);
+    }
+  } catch (error) {
+    console.error('Raw SendGrid test error:', error);
+    return c.json({
+      success: false,
+      error: error.message,
+      errorType: error.constructor.name
+    }, 500);
+  }
 });
 
 // Routes
