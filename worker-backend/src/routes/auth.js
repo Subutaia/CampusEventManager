@@ -67,10 +67,26 @@ app.post('/register', async (c) => {
 
     console.log('✅ User registered:', username);
 
-    // Send registration email (non-blocking)
-    sendRegistrationEmail(user).catch(err => {
-      console.error('Email send failed:', err.message);
-    });
+    // Send registration email using waitUntil to ensure it completes
+    console.log(`📧 Attempting to send registration email to ${user.email}`);
+    const emailPromise = sendRegistrationEmail(user)
+      .then(result => {
+        console.log(`📧 Registration email result for ${user.email}:`, result);
+        return result;
+      })
+      .catch(err => {
+        console.error(`❌ Email send failed for ${user.email}:`, err.message);
+        console.error('Full error:', err);
+        return false;
+      });
+    
+    // Use Cloudflare's waitUntil to ensure email is sent before worker terminates
+    if (c.executionCtx && c.executionCtx.waitUntil) {
+      c.executionCtx.waitUntil(emailPromise);
+    } else {
+      // Fallback: at least try to wait for it (non-Cloudflare environments)
+      await emailPromise;
+    }
 
     // Generate token
     const token = generateToken({ _id: user._id, username: user.username, role: user.role }, c.env.JWT_SECRET);
