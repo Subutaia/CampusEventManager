@@ -782,19 +782,10 @@ const AppState = {
     const user = CampusData.getCurrentUser();
 
     if (!user) {
-        // Not logged in → send to login
-        window.location.href = '../Login/Login page/Login.html';
+        AppState.openModal(); // open login
         return;
     }
 
-    // Route based on role
-    if (user.role === 'admin') {
-        window.location.href = '../Dashboard/Admin/dashboard.html';
-    } 
-    else if (user.role === 'organizer') {
-        window.location.href = '../Dashboard/Organizer/dashboard.html';
-    } 
-    else if (user.role === 'student') {
-        window.location.href = '../Dashboard/Student/dashboard.html';
-    }
+    AppState.showDashboard();
+    AppState.renderDashboard();
 });
