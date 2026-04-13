@@ -411,6 +411,14 @@
         </div>
     </div>
 
+    <!-- Event Details Modal -->
+    <div class="modal-overlay" id="eventDetailsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="AppState.closeEventDetails()"><i class="fas fa-times"></i></button>
+            <div id="eventDetailsContent"></div>
+        </div>
+    </div>
+
     <!-- Dashboard -->
     <div class="dashboard-container" id="dashboardContainer">
         <div style="background:#4F46E5;color:white;padding:1rem 0;position:sticky;top:70px;z-index:99">
@@ -442,6 +450,9 @@
                 </button>
                 <button class="dashboard-tab" id="createTab" onclick="AppState.switchDashTab('create', event)" style="display:none">
                     <i class="fas fa-plus"></i> Create Event
+                </button>
+                <button class="dashboard-tab" id="myEventsTab" onclick="AppState.switchDashTab('my-events', event)" style="display:none">
+                    <i class="fas fa-calendar-alt"></i> My Events
                 </button>
                 <button class="dashboard-tab" id="pendingTab" onclick="AppState.switchDashTab('pending', event)" style="display:none">
                     <i class="fas fa-clipboard-list"></i> Pending
@@ -520,6 +531,12 @@
                 </div>
             </div>
 
+            <!-- My Events Tab (Organizer) -->
+            <div class="dashboard-panel" id="my-eventsPanel">
+                <h3 style="margin:0 0 1rem 0">My Events</h3>
+                <div id="dashMyEventsContainer"></div>
+            </div>
+
             <!-- Pending Events Tab (Admin) -->
             <div class="dashboard-panel" id="pendingPanel">
                 <h3 style="margin:0 0 1rem 0">Pending Event Reviews</h3>
@@ -565,14 +582,21 @@
                 </p>
                 <div class="hero-actions">
                     <a href="#events" class="btn btn-primary btn-lg">Browse Events</a>
-                    <button class="btn btn-outline btn-lg" onclick="AppState.openAuthTab('register')" style="background:transparent;border:2px solid white;color:white;cursor:pointer">Create Event</button>
+                    <button class="btn btn-outline btn-lg" id="heroActionBtn" onclick="AppState.openAuthTab('register')" style="background:transparent;border:2px solid white;color:white;cursor:pointer">Create Event</button>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Event Details Modal -->
+    <div class="modal-overlay" id="eventDetailsModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="AppState.closeEventDetails()"><i class="fas fa-times"></i></button>
+            <div id="eventDetailsContent"></div>
+        </div>
+    </div>
+
     <!-- Featured Events Section -->
-    <section class="featured-section">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Trending Now</h2>

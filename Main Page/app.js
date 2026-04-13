@@ -64,13 +64,17 @@ const AppState = {
     renderUI() {
         const navActions = document.getElementById('navActions');
         if (this.currentUser) {
-            navActions.innerHTML = `<button class="btn btn-primary" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>`;
+            navActions.innerHTML = `
+                <span class="nav-user" style="margin-right:0.75rem;color:#fff;font-weight:600">Hi, ${this.currentUser.username}</span>
+                <button class="btn btn-outline" onclick="AppState.goToDashboard()">Dashboard</button>
+                <button class="btn btn-primary" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>`;
             document.getElementById('logoutBtn').addEventListener('click', () => this.handleLogout());
         } else {
             navActions.innerHTML = `
                 <button class="btn btn-outline" onclick="AppState.openModal()">Login</button>
                 <button class="btn btn-primary" onclick="AppState.openAuthTab('register')">Sign Up</button>`;
         }
+        this.updateHeroAction();
     },
 
     // Modal management
@@ -101,6 +105,61 @@ const AppState = {
     clearAuthErrors() {
         document.getElementById('loginError').innerText = '';
         document.getElementById('registerError').innerText = '';
+    },
+    updateHeroAction() {
+        const heroBtn = document.getElementById('heroActionBtn');
+        if (!heroBtn) return;
+
+        if (this.currentUser) {
+            heroBtn.textContent = 'Go to Dashboard';
+            heroBtn.onclick = () => this.goToDashboard();
+            heroBtn.style.border = '2px solid white';
+            heroBtn.style.background = 'transparent';
+            heroBtn.style.color = 'white';
+        } else {
+            heroBtn.textContent = 'Create Event';
+            heroBtn.onclick = () => this.openAuthTab('register');
+            heroBtn.style.border = '2px solid white';
+            heroBtn.style.background = 'transparent';
+            heroBtn.style.color = 'white';
+        }
+    },
+    goToDashboard() {
+        if (!this.currentUser) {
+            this.openModal();
+            return;
+        }
+        this.showDashboard();
+        this.renderDashboard();
+    },
+    openEventDetails(eventId) {
+        const event = CampusData.getEventById(eventId);
+        if (!event) return;
+        if (!this.currentUser) {
+            this.openModal();
+            return;
+        }
+
+        const details = document.getElementById('eventDetailsContent');
+        details.innerHTML = `
+            <h2 style="margin-top:0">${event.title}</h2>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;color:#6B7280;margin-bottom:1rem">
+                <span><i class="far fa-calendar"></i> ${CampusData.formatDate(event.date)}</span>
+                <span><i class="far fa-clock"></i> ${CampusData.formatTime(event.time)}</span>
+                <span><i class="fas fa-map-marker-alt"></i> ${event.location}</span>
+                <span><i class="fas fa-users"></i> ${event.attendeeCount} attending</span>
+            </div>
+            <p style="color:#374151;line-height:1.6;margin-bottom:1rem">${event.description}</p>
+            <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">${(event.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center">
+                <span class="badge ${event.status === 'approved' ? 'badge-success' : event.status === 'rejected' ? 'badge-danger' : 'badge-warning'}">${event.status}</span>
+                <span style="color:#6B7280;font-size:0.95rem">Organized by ${event.organizerName}</span>
+            </div>`;
+
+        document.getElementById('eventDetailsModal').classList.add('active');
+    },
+    closeEventDetails() {
+        document.getElementById('eventDetailsModal').classList.remove('active');
     },
 
     // Auth handlers
@@ -135,6 +194,7 @@ const AppState = {
             // Store token and user info
             localStorage.setItem('cem_token', data.data.token);
             localStorage.setItem('cem_user', JSON.stringify(data.data.user));
+            CampusData.setCurrentUser(data.data.user);
 
             // Update current user
             this.currentUser = data.data.user;
@@ -206,6 +266,7 @@ const AppState = {
             // Store token and user info
             localStorage.setItem('cem_token', data.data.token);
             localStorage.setItem('cem_user', JSON.stringify(data.data.user));
+            CampusData.setCurrentUser(data.data.user);
 
             // Update current user
             this.currentUser = data.data.user;
@@ -229,6 +290,8 @@ const AppState = {
 
     handleLogout() {
         CampusData.logout();
+        localStorage.removeItem('cem_token');
+        localStorage.removeItem('cem_user');
         this.currentUser = null;
         this.renderUI();
         this.showLanding();
@@ -302,6 +365,7 @@ const AppState = {
 
         if (this.currentUser?.role === 'organizer') {
             createTab.style.display = 'inline-block';
+            document.getElementById('myEventsTab').style.display = 'inline-block';
         } else if (this.currentUser?.role === 'admin') {
             pendingTab.style.display = 'inline-block';
             usersTab.style.display = 'inline-block';
@@ -323,6 +387,7 @@ const AppState = {
         const tabMap = {
             'browse': 'Browse Events',
             'my-rsvps': 'My RSVPs',
+            'my-events': 'My Events',
             'create': 'Create Event',
             'pending': 'Pending',
             'users': 'Manage Users',
@@ -343,9 +408,42 @@ const AppState = {
         // Render content based on tab
         if (tab === 'browse') this.renderBrowseEvents();
         if (tab === 'my-rsvps') this.renderMyRSVPs();
+        if (tab === 'my-events') this.renderMyEvents();
         if (tab === 'notifications') this.renderNotifications();
         if (tab === 'pending') this.renderPendingEvents();
         if (tab === 'users') this.renderUsersTable();
+    },
+
+    // Event rendering - Dashboard
+    renderMyEvents() {
+        const events = CampusData.getEventsByOrganizer(this.currentUser.id);
+        const container = document.getElementById('dashMyEventsContainer');
+
+        if (events.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-plus"></i><p>You have not created any events yet. Create one to get started.</p></div>';
+            return;
+        }
+
+        container.innerHTML = events.map(ev => {
+            const statusClass = ev.status === 'approved' ? 'badge-success' : ev.status === 'rejected' ? 'badge-danger' : 'badge-warning';
+            return `
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.75rem">
+                        <div style="flex:1">
+                            <h4 style="margin:0 0 0.5rem 0">${ev.title}</h4>
+                            <div style="display:flex;gap:0.75rem;font-size:0.9rem;color:#6B7280;flex-wrap:wrap">
+                                <span><i class="far fa-calendar"></i> ${CampusData.formatDate(ev.date)}</span>
+                                <span><i class="far fa-clock"></i> ${CampusData.formatTime(ev.time)}</span>
+                                <span><i class="fas fa-map-marker-alt"></i> ${ev.location}</span>
+                                <span><i class="fas fa-users"></i> ${ev.attendeeCount} attending</span>
+                            </div>
+                        </div>
+                        <span class="badge ${statusClass}" style="margin-top:4px">${ev.status}</span>
+                    </div>
+                    <p style="margin:0 0 0.75rem 0;color:#4B5563">${ev.description}</p>
+                    <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">${(ev.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                </div>`;
+        }).join('');
     },
 
     // Event rendering - Landing page
@@ -392,7 +490,7 @@ const AppState = {
                         <div class="event-attendees"><i class="fas fa-users"></i><span>${ev.attendeeCount} attending</span></div>
                     </div>
                     <div class="event-tags">${(ev.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-                    <button class="btn btn-primary btn-block" onclick="AppState.openModal()" style="width:100%;padding:0.75rem;margin-top:0.75rem">View Details</button>
+                    <button class="btn btn-primary btn-block" onclick="AppState.openEventDetails('${ev.id}')" style="width:100%;padding:0.75rem;margin-top:0.75rem">View Details</button>
                 </div>
             </article>`).join('');
     },
