@@ -226,7 +226,7 @@ const AppState = {
             this.showError(errorEl, 'An error occurred. Please try again.');
         });
     },
-    
+        
     handleViewEventClick(eventId) {
         if (!this.currentUser) {
             this.openModal();
@@ -236,26 +236,23 @@ const AppState = {
         this.showDashboard();
         this.switchDashTab('browse');
 
-        // Scroll to the event card
         document.getElementById('dashEventsContainer')?.scrollIntoView({ behavior: 'smooth' });
     },
 
-    handleViewEventClick() {
-         if (!this.currentUser) {
-        this.openAuthTab('register');
-        return;
-    }
+    handleCreateEventClick() {
+        if (!this.currentUser) {
+            this.openAuthTab('register');
+            return;
+        }
 
-    if (this.currentUser.role === 'organizer') {
+        if (this.currentUser.role !== 'organizer') {
+            alert("Only organizers can create events.");
+            return;
+        }
+
         this.showDashboard();
         this.switchDashTab('create');
-        return;
-    }
-
-    // logged in but not organizer
-    this.openAuthTab('register');
-},
-
+    },
     handleLogout() {
         CampusData.logout();
         this.currentUser = null;
