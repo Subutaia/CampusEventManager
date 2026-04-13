@@ -360,12 +360,14 @@ const AppState = {
     // Dashboard role-based UI
     updateDashboardReadonly() {
         const createTab = document.getElementById('createTab');
+        const analyticsTab = document.getElementById('analyticsTab');
         const pendingTab = document.getElementById('pendingTab');
         const usersTab = document.getElementById('usersTab');
 
         if (this.currentUser?.role === 'organizer') {
             createTab.style.display = 'inline-block';
             document.getElementById('myEventsTab').style.display = 'inline-block';
+            analyticsTab.style.display = 'inline-block';
         } else if (this.currentUser?.role === 'admin') {
             pendingTab.style.display = 'inline-block';
             usersTab.style.display = 'inline-block';
@@ -409,6 +411,7 @@ const AppState = {
         if (tab === 'browse') this.renderBrowseEvents();
         if (tab === 'my-rsvps') this.renderMyRSVPs();
         if (tab === 'my-events') this.renderMyEvents();
+        if (tab === 'analytics') this.renderAnalytics();
         if (tab === 'notifications') this.renderNotifications();
         if (tab === 'pending') this.renderPendingEvents();
         if (tab === 'users') this.renderUsersTable();
@@ -444,6 +447,75 @@ const AppState = {
                     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.75rem">${(ev.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
                 </div>`;
         }).join('');
+    },
+
+    renderAnalytics() {
+        const events = CampusData.getEventsByOrganizer(this.currentUser.id);
+        const container = document.getElementById('dashAnalyticsContainer');
+
+        if (events.length === 0) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><p>No analytics available until you create events.</p></div>';
+            return;
+        }
+
+        const totalEvents = events.length;
+        const approved = events.filter(ev => ev.status === 'approved').length;
+        const pending = events.filter(ev => ev.status === 'pending').length;
+        const rejected = events.filter(ev => ev.status === 'rejected').length;
+        const eventData = events.map(ev => ({
+            ...ev,
+            rsvpCount: CampusData.getRSVPsByEvent(ev.id).length
+        }));
+
+        const totalRSVPs = eventData.reduce((sum, ev) => sum + ev.rsvpCount, 0);
+        const avgRSVPs = totalEvents ? (totalRSVPs / totalEvents).toFixed(1) : 0;
+        const topEvent = [...eventData].sort((a, b) => b.rsvpCount - a.rsvpCount)[0];
+
+        const categoryCounts = eventData.reduce((acc, ev) => {
+            const cat = ev.category || 'other';
+            acc[cat] = (acc[cat] || 0) + 1;
+            return acc;
+        }, {});
+
+        const categoryRows = Object.entries(categoryCounts).map(([cat, count]) => `
+            <div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #E5E7EB">
+                <span style="color:#374151;">${cat.charAt(0).toUpperCase() + cat.slice(1)}</span>
+                <span style="color:#6B7280;">${count}</span>
+            </div>
+        `).join('');
+
+        const eventRows = eventData.map(ev => `
+            <div style="padding:0.8rem 0;border-bottom:1px solid #E5E7EB">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem">
+                    <strong>${ev.title}</strong>
+                    <span class="badge ${ev.status === 'approved' ? 'badge-success' : ev.status === 'rejected' ? 'badge-danger' : 'badge-warning'}" style="text-transform:none;">${ev.status}</span>
+                </div>
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;color:#6B7280;font-size:0.9rem">
+                    <span><i class="far fa-calendar"></i> ${CampusData.formatDate(ev.date)}</span>
+                    <span><i class="fas fa-users"></i> ${ev.rsvpCount} RSVP${ev.rsvpCount !== 1 ? 's' : ''}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> ${ev.location}</span>
+                </div>
+            </div>
+        `).join('');
+
+        container.innerHTML = `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1rem">
+                <div class="card"><h4>Total Events</h4><p style="font-size:2rem;margin:0.5rem 0 0 0">${totalEvents}</p></div>
+                <div class="card"><h4>Total RSVPs</h4><p style="font-size:2rem;margin:0.5rem 0 0 0">${totalRSVPs}</p></div>
+                <div class="card"><h4>Avg RSVPs/Event</h4><p style="font-size:2rem;margin:0.5rem 0 0 0">${avgRSVPs}</p></div>
+                <div class="card"><h4>Approved</h4><p style="font-size:2rem;margin:0.5rem 0 0 0">${approved}</p></div>
+                <div class="card"><h4>Pending</h4><p style="font-size:2rem;margin:0.5rem 0 0 0">${pending}</p></div>
+                <div class="card"><h4>Rejected</h4><p style="font-size:2rem;margin:0.5rem 0 0 0">${rejected}</p></div>
+            </div>
+            <div class="card" style="margin-bottom:1rem">
+                <h4 style="margin-top:0">Category Breakdown</h4>
+                ${categoryRows}
+            </div>
+            <div class="card">
+                <h4 style="margin-top:0">Event Performance</h4>
+                <div style="border-top:1px solid #E5E7EB;margin-top:0.75rem">${eventRows}</div>
+            </div>
+        `;
     },
 
     // Event rendering - Landing page

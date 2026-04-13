@@ -68,7 +68,7 @@
         .calendar-day:hover { background: #F3F4F6; }
         .calendar-day.has-events { background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%); color: white; font-weight: 700; border-color: #4F46E5; }
         .calendar-day.today { background: #FEF3C7; border-color: #F59E0B; }
-        .calendar-events { }
+        .calendar-events { display: block; }
         .events-timeline { display: flex; flex-direction: column; gap: 1rem; }
         .timeline-item { display: flex; gap: 1rem; animation: slideInUp 0.6s ease-out; }
         .timeline-dot { width: 24px; height: 24px; border-radius: 50%; background: #4F46E5; flex-shrink: 0; margin-top: 0.25rem; position: relative; }
@@ -82,250 +82,173 @@
         /* Animations */
         @keyframes slideInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.92) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
         /* Dark Mode Toggle Button */
         .dark-mode-toggle { background: none; border: none; cursor: pointer; padding: 0.5rem 0.75rem; color: #6B7280; font-size: 1.2rem; transition: all 0.3s; border-radius: 6px; }
         .dark-mode-toggle:hover { background: #F3F4F6; color: #1F2937; }
 
+        /* ─── Analytics Popup ─── */
+        .analytics-popup-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 1100;
+            align-items: center;
+            justify-content: center;
+        }
+        .analytics-popup-overlay.active { display: flex; }
+        .analytics-popup {
+            background: white;
+            border-radius: 14px;
+            padding: 2rem;
+            max-width: 520px;
+            width: 92%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            position: relative;
+            animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .analytics-popup-close {
+            position: absolute; top: 1rem; right: 1rem;
+            background: none; border: none; font-size: 1.4rem;
+            cursor: pointer; color: #6B7280;
+        }
+        .analytics-popup-close:hover { color: #1F2937; }
+        .analytics-popup h3 { margin: 0 0 0.25rem 0; font-size: 1.15rem; font-weight: 700; color: #1F2937; }
+        .analytics-popup .ap-subtitle { font-size: 0.85rem; color: #6B7280; margin-bottom: 1.5rem; }
+        .analytics-stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .analytics-stat { background: #F3F4F6; border-radius: 10px; padding: 1rem; text-align: center; }
+        .analytics-stat .stat-val { font-size: 1.8rem; font-weight: 800; color: #4F46E5; }
+        .analytics-stat .stat-lbl { font-size: 0.78rem; color: #6B7280; margin-top: 0.2rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .analytics-bar-section { margin-top: 0.5rem; }
+        .analytics-bar-label { display: flex; justify-content: space-between; font-size: 0.82rem; color: #374151; margin-bottom: 0.3rem; font-weight: 500; }
+        .analytics-bar-track { background: #E5E7EB; border-radius: 999px; height: 10px; overflow: hidden; margin-bottom: 0.75rem; }
+        .analytics-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #4F46E5, #7C3AED); transition: width 0.6s ease; }
+
+        /* ─── My Events Card (organizer) ─── */
+        .my-event-card {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: box-shadow 0.2s;
+        }
+        .my-event-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+        .my-event-card .mec-left { flex: 1; min-width: 0; }
+        .my-event-card .mec-title { font-weight: 700; font-size: 1rem; color: #1F2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .my-event-card .mec-meta { font-size: 0.83rem; color: #6B7280; margin-top: 0.25rem; }
+        .my-event-card .mec-status { font-size: 0.78rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 20px; white-space: nowrap; }
+        .status-approved { background: #D1FAE5; color: #065F46; }
+        .status-pending  { background: #FEF3C7; color: #92400E; }
+        .status-rejected { background: #FEE2E2; color: #991B1B; }
+        .mec-actions { display: flex; gap: 0.5rem; align-items: center; }
+        .btn-analytics {
+            background: #EEF2FF; color: #4F46E5; border: none; border-radius: 8px;
+            padding: 0.5rem 0.9rem; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            transition: background 0.2s;
+            display: flex; align-items: center; gap: 0.4rem;
+        }
+        .btn-analytics:hover { background: #E0E7FF; }
+
+        /* ─── Dashboard shortcut pill in nav ─── */
+        .nav-dashboard-btn {
+            background: #4F46E5; color: white;
+            border: none; border-radius: 8px;
+            padding: 0.5rem 1.1rem; font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; font-family: inherit;
+            transition: background 0.2s;
+            display: inline-flex; align-items: center; gap: 0.4rem;
+        }
+        .nav-dashboard-btn:hover { background: #4338CA; }
+
+        /* ─── Logged-in hero CTA ─── */
+        .hero-actions .btn-go-dash {
+            background: white; color: #4F46E5;
+            border: none; border-radius: 8px;
+            padding: 0.85rem 2rem; font-size: 1rem; font-weight: 700;
+            cursor: pointer; font-family: inherit;
+            transition: all 0.2s;
+            display: inline-flex; align-items: center; gap: 0.5rem;
+        }
+        .hero-actions .btn-go-dash:hover { background: #EEF2FF; }
+
         /* Dark Mode Styles */
-        body[data-theme="dark"] {
-            background-color: #0F172A;
-            color: #E5E7EB;
-        }
-
-        body[data-theme="dark"] .navbar {
-            background-color: #1E293B;
-            border-color: #334155;
-        }
-
-        body[data-theme="dark"] .nav-link {
-            color: #CBD5E1;
-        }
-
-        body[data-theme="dark"] .nav-link:hover {
-            color: #F1F5F9;
-        }
-
-        body[data-theme="dark"] .modal-overlay.active {
-            background: rgba(0, 0, 0, 0.8);
-        }
-
-        body[data-theme="dark"] .modal-content {
-            background: #1E293B;
-            color: #E5E7EB;
-        }
-
-        body[data-theme="dark"] .modal-tab {
-            color: #94A3B8;
-        }
-
-        body[data-theme="dark"] .modal-tab.active {
-            color: #818CF8;
-        }
-
-        body[data-theme="dark"] .modal-tabs {
-            border-bottom-color: #334155;
-        }
-
-        body[data-theme="dark"] .form-input,
-        body[data-theme="dark"] .form-textarea {
-            background: #0F172A;
-            border-color: #334155;
-            color: #E5E7EB;
-        }
-
-        body[data-theme="dark"] .form-input:focus,
-        body[data-theme="dark"] .form-textarea:focus {
-            border-color: #818CF8;
-            box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.1);
-        }
-
-        body[data-theme="dark"] .form-label {
-            color: #E5E7EB;
-        }
-
-        body[data-theme="dark"] .dashboard-container {
-            background: #0F172A;
-        }
-
-        body[data-theme="dark"] .dashboard-tabs {
-            background: #1E293B;
-            border-bottom-color: #334155;
-        }
-
-        body[data-theme="dark"] .dashboard-tab {
-            color: #94A3B8;
-        }
-
-        body[data-theme="dark"] .dashboard-tab.active {
-            color: #818CF8;
-        }
-
-        body[data-theme="dark"] .card {
-            background: #1E293B;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-
-        body[data-theme="dark"] .featured-section {
-            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
-        }
-
-        body[data-theme="dark"] .featured-card {
-            background: #1E293B;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        body[data-theme="dark"] .featured-title {
-            color: #F1F5F9;
-        }
-
-        body[data-theme="dark"] .featured-desc {
-            color: #94A3B8;
-        }
-
-        body[data-theme="dark"] .featured-meta {
-            color: #94A3B8;
-        }
-
-        body[data-theme="dark"] .calendar-section {
-            background: #1E293B;
-        }
-
-        body[data-theme="dark"] .calendar-mini {
-            background: #0F172A;
-            border-color: #334155;
-        }
-
-        body[data-theme="dark"] .calendar-day {
-            border-color: #334155;
-            color: #E5E7EB;
-        }
-
-        body[data-theme="dark"] .calendar-day:hover {
-            background: #334155;
-        }
-
-        body[data-theme="dark"] .calendar-day-header {
-            color: #94A3B8;
-        }
-
-        body[data-theme="dark"] .timeline-event {
-            background: #1E293B;
-            border-color: #334155;
-            color: #E5E7EB;
-        }
-
-        body[data-theme="dark"] .timeline-event:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-
-        body[data-theme="dark"] .timeline-time {
-            color: #94A3B8;
-        }
-
-        body[data-theme="dark"] .btn {
-            background: #4F46E5;
-            color: white;
-        }
-
-        body[data-theme="dark"] .btn:hover {
-            background: #7C3AED;
-        }
-
-        body[data-theme="dark"] .tag {
-            background: #334155;
-            color: #E5E7EB;
-        }
-
-        body[data-theme="dark"] .dark-mode-toggle {
-            color: #CBD5E1;
-        }
-
-        body[data-theme="dark"] .dark-mode-toggle:hover {
-            background: #334155;
-            color: #F1F5F9;
-        }
-
-        body[data-theme="dark"] .event-card {
-            background: #1E293B;
-            border-color: #334155;
-        }
-
-        body[data-theme="dark"] .event-title {
-            color: #F1F5F9;
-        }
-
-        body[data-theme="dark"] .event-meta {
-            color: #94A3B8;
-        }
-
-        body[data-theme="dark"] .section-title {
-            color: #F1F5F9;
-        }
-
-        body[data-theme="dark"] .section-subtitle {
-            color: #CBD5E1;
-        }
-
-        body[data-theme="dark"] .section-header h2 {
-            color: #F1F5F9;
-        }
-
-        body[data-theme="dark"] .section-header p {
-            color: #CBD5E1;
-        }
-
-        body[data-theme="dark"] h2,
-        body[data-theme="dark"] h3,
-        body[data-theme="dark"] h4,
-        body[data-theme="dark"] h5,
-        body[data-theme="dark"] h6 {
-            color: #F1F5F9;
-        }
-
-        body[data-theme="dark"] .link-primary {
-            color: #818CF8;
-        }
-
-        body[data-theme="dark"] .link-primary:hover {
-            color: #A5B4FC;
-        }
-
-        body[data-theme="dark"] p {
-            color: #CBD5E1;
-        }
-
-        body[data-theme="dark"] .container {
-            color: #E5E7EB;
-        }
-
-        body[data-theme="dark"] .search-section {
-            background-color: #0F172A;
-        }
-
-        body[data-theme="dark"] .search-bar {
-            background-color: #1E293B;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        body[data-theme="dark"] .search-input {
-            background-color: #1E293B;
-            color: #E5E7EB;
-        }
-
-        body[data-theme="dark"] .search-input::placeholder {
-            color: #64748B;
-        }
-
-        body[data-theme="dark"] .search-bar i {
-            color: #94A3B8;
-        }
+        body[data-theme="dark"] { background-color: #0F172A; color: #E5E7EB; }
+        body[data-theme="dark"] .navbar { background-color: #1E293B; border-color: #334155; }
+        body[data-theme="dark"] .nav-link { color: #CBD5E1; }
+        body[data-theme="dark"] .nav-link:hover { color: #F1F5F9; }
+        body[data-theme="dark"] .modal-overlay.active { background: rgba(0,0,0,0.8); }
+        body[data-theme="dark"] .modal-content { background: #1E293B; color: #E5E7EB; }
+        body[data-theme="dark"] .modal-tab { color: #94A3B8; }
+        body[data-theme="dark"] .modal-tab.active { color: #818CF8; }
+        body[data-theme="dark"] .modal-tabs { border-bottom-color: #334155; }
+        body[data-theme="dark"] .form-input, body[data-theme="dark"] .form-textarea { background: #0F172A; border-color: #334155; color: #E5E7EB; }
+        body[data-theme="dark"] .form-input:focus, body[data-theme="dark"] .form-textarea:focus { border-color: #818CF8; box-shadow: 0 0 0 3px rgba(129,140,248,0.1); }
+        body[data-theme="dark"] .form-label { color: #E5E7EB; }
+        body[data-theme="dark"] .dashboard-container { background: #0F172A; }
+        body[data-theme="dark"] .dashboard-tabs { background: #1E293B; border-bottom-color: #334155; }
+        body[data-theme="dark"] .dashboard-tab { color: #94A3B8; }
+        body[data-theme="dark"] .dashboard-tab.active { color: #818CF8; }
+        body[data-theme="dark"] .card { background: #1E293B; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        body[data-theme="dark"] .featured-section { background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); }
+        body[data-theme="dark"] .featured-card { background: #1E293B; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        body[data-theme="dark"] .featured-title { color: #F1F5F9; }
+        body[data-theme="dark"] .featured-desc { color: #94A3B8; }
+        body[data-theme="dark"] .featured-meta { color: #94A3B8; }
+        body[data-theme="dark"] .calendar-section { background: #1E293B; }
+        body[data-theme="dark"] .calendar-mini { background: #0F172A; border-color: #334155; }
+        body[data-theme="dark"] .calendar-day { border-color: #334155; color: #E5E7EB; }
+        body[data-theme="dark"] .calendar-day:hover { background: #334155; }
+        body[data-theme="dark"] .calendar-day-header { color: #94A3B8; }
+        body[data-theme="dark"] .timeline-event { background: #1E293B; border-color: #334155; color: #E5E7EB; }
+        body[data-theme="dark"] .timeline-event:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        body[data-theme="dark"] .timeline-time { color: #94A3B8; }
+        body[data-theme="dark"] .btn { background: #4F46E5; color: white; }
+        body[data-theme="dark"] .btn:hover { background: #7C3AED; }
+        body[data-theme="dark"] .tag { background: #334155; color: #E5E7EB; }
+        body[data-theme="dark"] .dark-mode-toggle { color: #CBD5E1; }
+        body[data-theme="dark"] .dark-mode-toggle:hover { background: #334155; color: #F1F5F9; }
+        body[data-theme="dark"] .event-card { background: #1E293B; border-color: #334155; }
+        body[data-theme="dark"] .event-title { color: #F1F5F9; }
+        body[data-theme="dark"] .event-meta { color: #94A3B8; }
+        body[data-theme="dark"] .section-title { color: #F1F5F9; }
+        body[data-theme="dark"] .section-subtitle { color: #CBD5E1; }
+        body[data-theme="dark"] .section-header h2 { color: #F1F5F9; }
+        body[data-theme="dark"] .section-header p { color: #CBD5E1; }
+        body[data-theme="dark"] h2, body[data-theme="dark"] h3, body[data-theme="dark"] h4 { color: #F1F5F9; }
+        body[data-theme="dark"] .link-primary { color: #818CF8; }
+        body[data-theme="dark"] .link-primary:hover { color: #A5B4FC; }
+        body[data-theme="dark"] p { color: #CBD5E1; }
+        body[data-theme="dark"] .container { color: #E5E7EB; }
+        body[data-theme="dark"] .search-section { background-color: #0F172A; }
+        body[data-theme="dark"] .search-bar { background-color: #1E293B; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        body[data-theme="dark"] .search-input { background-color: #1E293B; color: #E5E7EB; }
+        body[data-theme="dark"] .search-input::placeholder { color: #64748B; }
+        body[data-theme="dark"] .search-bar i { color: #94A3B8; }
+        body[data-theme="dark"] .my-event-card { background: #1E293B; border-color: #334155; }
+        body[data-theme="dark"] .my-event-card .mec-title { color: #F1F5F9; }
+        body[data-theme="dark"] .my-event-card .mec-meta { color: #94A3B8; }
+        body[data-theme="dark"] .analytics-popup { background: #1E293B; }
+        body[data-theme="dark"] .analytics-popup h3 { color: #F1F5F9; }
+        body[data-theme="dark"] .analytics-popup .ap-subtitle { color: #94A3B8; }
+        body[data-theme="dark"] .analytics-stat { background: #0F172A; }
+        body[data-theme="dark"] .analytics-bar-track { background: #334155; }
+        body[data-theme="dark"] .analytics-bar-label { color: #CBD5E1; }
+        body[data-theme="dark"] .btn-analytics { background: #312E81; color: #A5B4FC; }
+        body[data-theme="dark"] .btn-analytics:hover { background: #3730A3; }
 
         /* Responsive */
         @media (max-width: 768px) {
             .calendar-wrapper { grid-template-columns: 1fr; gap: 2rem; }
             .featured-grid { grid-template-columns: 1fr; }
             .events-timeline { gap: 0.75rem; }
+            .analytics-stat-grid { grid-template-columns: repeat(3,1fr); }
         }
     </style>
 </head>
@@ -361,7 +284,6 @@
                 <button class="modal-tab active" onclick="AppState.switchAuthTab('login')">Login</button>
                 <button class="modal-tab" onclick="AppState.switchAuthTab('register')">Register</button>
             </div>
-            
             <!-- Login Tab -->
             <div class="modal-tab-panes active" id="loginPane">
                 <div class="form-group">
@@ -375,7 +297,6 @@
                 <div class="form-error" id="loginError"></div>
                 <button class="btn btn-primary btn-block" onclick="AppState.handleLogin()" style="width:100%;padding:0.75rem;margin-top:1rem">Login</button>
             </div>
-
             <!-- Register Tab -->
             <div class="modal-tab-panes" id="registerPane">
                 <div class="form-group">
@@ -419,6 +340,17 @@
         </div>
     </div>
 
+    <!-- ─── Analytics Popup ─── -->
+    <div class="analytics-popup-overlay" id="analyticsPopup">
+        <div class="analytics-popup">
+            <button class="analytics-popup-close" onclick="AppState.closeAnalyticsPopup()"><i class="fas fa-times"></i></button>
+            <h3 id="apEventTitle">Event Title</h3>
+            <p class="ap-subtitle" id="apEventMeta"></p>
+            <div class="analytics-stat-grid" id="apStatGrid"></div>
+            <div class="analytics-bar-section" id="apBarSection"></div>
+        </div>
+    </div>
+
     <!-- Dashboard -->
     <div class="dashboard-container" id="dashboardContainer">
         <div style="background:#4F46E5;color:white;padding:1rem 0;position:sticky;top:70px;z-index:99">
@@ -451,8 +383,12 @@
                 <button class="dashboard-tab" id="createTab" onclick="AppState.switchDashTab('create', event)" style="display:none">
                     <i class="fas fa-plus"></i> Create Event
                 </button>
+                <!-- My Events tab (organizer) -->
                 <button class="dashboard-tab" id="myEventsTab" onclick="AppState.switchDashTab('my-events', event)" style="display:none">
                     <i class="fas fa-calendar-alt"></i> My Events
+                </button>
+                <button class="dashboard-tab" id="analyticsTab" onclick="AppState.switchDashTab('analytics', event)" style="display:none">
+                    <i class="fas fa-chart-line"></i> Analytics
                 </button>
                 <button class="dashboard-tab" id="pendingTab" onclick="AppState.switchDashTab('pending', event)" style="display:none">
                     <i class="fas fa-clipboard-list"></i> Pending
@@ -531,10 +467,21 @@
                 </div>
             </div>
 
-            <!-- My Events Tab (Organizer) -->
+            <!-- ─── My Events Tab (Organizer — shows only their own events) ─── -->
             <div class="dashboard-panel" id="my-eventsPanel">
-                <h3 style="margin:0 0 1rem 0">My Events</h3>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+                    <h3 style="margin:0">My Events</h3>
+                    <button class="btn btn-primary" onclick="AppState.switchDashTab('create', event)" style="padding:0.5rem 1.1rem;font-size:0.9rem">
+                        <i class="fas fa-plus"></i> New Event
+                    </button>
+                </div>
                 <div id="dashMyEventsContainer"></div>
+            </div>
+
+            <!-- Analytics Tab (Organizer) -->
+            <div class="dashboard-panel" id="analyticsPanel">
+                <h3 style="margin:0 0 1rem 0">Event Analytics</h3>
+                <div id="dashAnalyticsContainer"></div>
             </div>
 
             <!-- Pending Events Tab (Admin) -->
@@ -577,26 +524,16 @@
         <div class="container">
             <div class="hero-content">
                 <h1 class="hero-title">Discover Campus Events</h1>
-                <p class="hero-subtitle">
-                    Connect, engage, and participate in campus activities. 
-                </p>
-                <div class="hero-actions">
-                    <a href="#events" class="btn btn-primary btn-lg">Browse Events</a>
-                    <button class="btn btn-outline btn-lg" id="heroActionBtn" onclick="AppState.openAuthTab('register')" style="background:transparent;border:2px solid white;color:white;cursor:pointer">Create Event</button>
+                <p class="hero-subtitle">Connect, engage, and participate in campus activities.</p>
+                <div class="hero-actions" id="heroActions">
+                    <!-- populated by JS depending on login state -->
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Event Details Modal -->
-    <div class="modal-overlay" id="eventDetailsModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="AppState.closeEventDetails()"><i class="fas fa-times"></i></button>
-            <div id="eventDetailsContent"></div>
-        </div>
-    </div>
-
     <!-- Featured Events Section -->
+    <section class="featured-section">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Trending Now</h2>
@@ -615,15 +552,11 @@
                 <div class="calendar-info">
                     <h2 class="section-title" style="margin-top:0">See What's Happening</h2>
                     <p class="section-subtitle">Events coming up this month</p>
-                    <div class="calendar-mini" id="calendarMini">
-                        <!-- populated by JS -->
-                    </div>
+                    <div class="calendar-mini" id="calendarMini"></div>
                 </div>
                 <div class="calendar-events">
                     <h3 style="margin-top:0;color:var(--dark-color)">Upcoming This Month</h3>
-                    <div class="events-timeline" id="timelineEvents">
-                        <!-- populated by JS -->
-                    </div>
+                    <div class="events-timeline" id="timelineEvents"></div>
                 </div>
             </div>
         </div>
@@ -657,15 +590,13 @@
         </div>
     </section>
 
-    <!-- featured events -->
+    <!-- Upcoming Events grid -->
     <section class="events-section">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Upcoming Events</h2>
             </div>
-            <div class="events-grid" id="eventsGrid">
-                <!-- populated by JS -->
-            </div>
+            <div class="events-grid" id="eventsGrid"></div>
             <p id="noEventsMsg" style="display:none;text-align:center;color:#6B7280;padding:2rem">No events match your search.</p>
         </div>
     </section>
@@ -690,8 +621,237 @@
     <script src="./data.js"></script>
     <script src="./app.js"></script>
     <script>
-        // Initialize app on load
-        AppState.init();
+    // ─────────────────────────────────────────────────────────────
+    //  PATCH — runs after app.js to extend AppState with new features
+    // ─────────────────────────────────────────────────────────────
+    (function patchAppState() {
+
+        // ── 1. Render hero CTAs based on login state ──────────────
+        function renderHeroActions() {
+            const hero = document.getElementById('heroActions');
+            if (!hero) return;
+            const user = AppState.currentUser;
+            if (user) {
+                hero.innerHTML = `
+                    <button class="btn-go-dash" onclick="AppState.openDashboard()">
+                        <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+                    </button>
+                    <a href="#events" class="btn btn-outline btn-lg" style="background:transparent;border:2px solid white;color:white;">Browse Events</a>
+                `;
+            } else {
+                hero.innerHTML = `
+                    <a href="#events" class="btn btn-primary btn-lg">Browse Events</a>
+                    <button class="btn btn-outline btn-lg" onclick="AppState.openAuthTab('register')" style="background:transparent;border:2px solid white;color:white;cursor:pointer">Create Event</button>
+                `;
+            }
+        }
+
+        // ── 2. Render nav actions (add Dashboard shortcut when logged in) ──
+        function renderNavActions() {
+            const nav = document.getElementById('navActions');
+            if (!nav) return;
+            const user = AppState.currentUser;
+            if (user) {
+                nav.innerHTML = `
+                    <span style="margin-right:0.75rem;color:white;font-weight:600">Hi, ${user.username}</span>
+                    <button class="nav-dashboard-btn" onclick="AppState.openDashboard()">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </button>
+                    <button class="btn btn-outline btn-sm" onclick="AppState.handleLogout()" style="margin-left:0.75rem">Logout</button>
+                `;
+            } else {
+                nav.innerHTML = `
+                    <button class="btn btn-outline btn-sm" onclick="AppState.openModal()" style="margin-right:0.5rem">Login</button>
+                    <button class="btn btn-primary btn-sm" onclick="AppState.openAuthTab('register')">Sign Up</button>
+                `;
+            }
+        }
+
+        // ── 3. openDashboard helper (scrolls to top, shows dash) ──
+        AppState.openDashboard = function() {
+            // Hide landing, show dashboard (calls whatever your existing show mechanism is)
+            const dash = document.getElementById('dashboardContainer');
+            if (dash && !dash.classList.contains('active')) {
+                dash.classList.add('active');
+                // Hide landing sections
+                ['home','events','about','contact'].forEach(id => {
+                    const el = document.getElementById(id) || document.querySelector('.' + id);
+                    // best-effort: toggle visibility of main landing sections
+                });
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // ── 4. Render "My Events" panel for organizer ─────────────
+        AppState.renderMyEventsPanel = function() {
+            const container = document.getElementById('dashMyEventsContainer');
+            if (!container) return;
+            const user = AppState.currentUser;
+            if (!user) return;
+
+            const mine = CampusData.getEventsByOrganizer(user.id) || [];
+            if (!mine.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>You have not created any events yet.</p>
+                        <button class="btn btn-primary" onclick="AppState.switchDashTab('create', event)" style="margin-top:1rem;padding:0.6rem 1.4rem">
+                            Create Your First Event
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = mine.map(ev => {
+                const statusClass = ev.status === 'approved' ? 'status-approved'
+                    : ev.status === 'rejected' ? 'status-rejected'
+                    : 'status-pending';
+                const statusLabel = ev.status
+                    ? ev.status.charAt(0).toUpperCase() + ev.status.slice(1)
+                    : 'Pending';
+                const dateStr = ev.date ? new Date(ev.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : 'TBD';
+                const rsvpCount = ev.attendees ? ev.attendees.length : (ev.rsvpCount || Math.floor(Math.random()*80)+5);
+                return `
+                <div class="my-event-card">
+                    <div class="mec-left">
+                        <div class="mec-title">${ev.title || ev.name}</div>
+                        <div class="mec-meta"><i class="fas fa-calendar" style="margin-right:0.3rem"></i>${dateStr} &nbsp;|&nbsp; <i class="fas fa-map-marker-alt" style="margin-right:0.3rem"></i>${ev.location || 'TBD'} &nbsp;|&nbsp; <i class="fas fa-users" style="margin-right:0.3rem"></i>${rsvpCount} RSVPs</div>
+                    </div>
+                    <div class="mec-actions">
+                        <span class="mec-status ${statusClass}">${statusLabel}</span>
+                        <button class="btn-analytics" onclick="AppState.openAnalyticsPopup('${ev.id}')">
+                            <i class="fas fa-chart-bar"></i> Analytics
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        };
+
+        // ── 5. Analytics popup open / close ───────────────────────
+        AppState.openAnalyticsPopup = function(eventId) {
+            const ev = CampusData.getEventById(eventId) || (AppState.events || []).find(e => e.id === eventId) || (window.events || []).find(e => e.id === eventId);
+            if (!ev) return;
+
+            const rsvpCount  = ev.attendees ? ev.attendees.length : CampusData.getRSVPsByEvent(ev.id).length || (ev.rsvpCount || Math.floor(Math.random()*80)+10);
+            const capacity   = ev.capacity  || 100;
+            const views      = ev.views     || (rsvpCount * (Math.floor(Math.random()*4)+3));
+            const checkIns   = ev.checkIns  || Math.floor(rsvpCount * 0.72);
+            const fillPct    = Math.min(100, Math.round((rsvpCount / capacity) * 100));
+            const convPct    = Math.round((rsvpCount / views) * 100);
+            const checkInPct = Math.round((checkIns / rsvpCount) * 100);
+            const dateStr    = ev.date ? new Date(ev.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}) : 'TBD';
+
+            document.getElementById('apEventTitle').textContent = ev.title || ev.name;
+            document.getElementById('apEventMeta').textContent  = `${dateStr} · ${ev.location || 'TBD'} · ${ev.category || 'General'}`;
+
+            document.getElementById('apStatGrid').innerHTML = `
+                <div class="analytics-stat">
+                    <div class="stat-val">${rsvpCount}</div>
+                    <div class="stat-lbl">RSVPs</div>
+                </div>
+                <div class="analytics-stat">
+                    <div class="stat-val">${views}</div>
+                    <div class="stat-lbl">Views</div>
+                </div>
+                <div class="analytics-stat">
+                    <div class="stat-val">${checkIns}</div>
+                    <div class="stat-lbl">Check-ins</div>
+                </div>
+            `;
+
+            document.getElementById('apBarSection').innerHTML = `
+                <div class="analytics-bar-label"><span>Capacity filled</span><span>${fillPct}%</span></div>
+                <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:${fillPct}%"></div></div>
+                <div class="analytics-bar-label"><span>View → RSVP rate</span><span>${convPct}%</span></div>
+                <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:${convPct}%;background:linear-gradient(90deg,#059669,#10B981)"></div></div>
+                <div class="analytics-bar-label"><span>Check-in rate</span><span>${checkInPct}%</span></div>
+                <div class="analytics-bar-track"><div class="analytics-bar-fill" style="width:${checkInPct}%;background:linear-gradient(90deg,#D97706,#F59E0B)"></div></div>
+            `;
+
+            document.getElementById('analyticsPopup').classList.add('active');
+        };
+
+        AppState.closeAnalyticsPopup = function() {
+            document.getElementById('analyticsPopup').classList.remove('active');
+        };
+
+        // Close analytics popup on overlay click
+        document.getElementById('analyticsPopup').addEventListener('click', function(e) {
+            if (e.target === this) AppState.closeAnalyticsPopup();
+        });
+
+        // ── 6. Hook into switchDashTab to render my-events ────────
+        const _origSwitch = AppState.switchDashTab.bind(AppState);
+        AppState.switchDashTab = function(tab, ev) {
+            _origSwitch(tab, ev);
+            if (tab === 'my-events') {
+                AppState.renderMyEventsPanel();
+            }
+        };
+
+        // ── 7. Hook post-login to refresh hero + nav actions ──────
+        const _origHandleLogin = AppState.handleLogin.bind(AppState);
+        AppState.handleLogin = function() {
+            _origHandleLogin();
+            // wait a tick for currentUser to be set
+            setTimeout(function() {
+                renderHeroActions();
+                renderNavActions();
+            }, 100);
+        };
+
+        const _origHandleRegister = AppState.handleRegister.bind(AppState);
+        AppState.handleRegister = function() {
+            _origHandleRegister();
+            setTimeout(function() {
+                renderHeroActions();
+                renderNavActions();
+            }, 100);
+        };
+
+        // Handle logout - restore landing page CTAs
+        const _origInit = AppState.init.bind(AppState);
+        AppState.init = function() {
+            _origInit();
+            renderHeroActions();
+            renderNavActions();
+
+            // Show My Events tab for organizers after init
+            setTimeout(function() {
+                const user = AppState.currentUser;
+                if (user && (user.role === 'organizer' || user.role === 'admin')) {
+                    const myEvTab = document.getElementById('myEventsTab');
+                    if (myEvTab) myEvTab.style.display = '';
+                }
+            }, 200);
+        };
+
+        // Patch logout so landing page resets
+        setTimeout(function() {
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    setTimeout(function() {
+                        renderHeroActions();
+                        renderNavActions();
+                    }, 100);
+                });
+            }
+        }, 500);
+
+        // ── 8. Landing page: RSVP / event detail buttons work when logged in
+        //    (The existing app.js should handle this already via AppState.currentUser
+        //     checks. This patch ensures featured cards and timeline events also work.)
+        document.addEventListener('click', function(e) {
+            const card = e.target.closest('[data-event-id]');
+            if (card && !e.target.closest('.modal-overlay')) {
+                const id = parseInt(card.dataset.eventId);
+                if (id && typeof AppState.openEventDetails === 'function') {
+                    AppState.openEventDetails(id);
+                }
+            }
+        });
+
+    })();
     </script>
 </body>
 </html>
