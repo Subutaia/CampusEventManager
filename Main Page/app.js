@@ -226,6 +226,35 @@ const AppState = {
             this.showError(errorEl, 'An error occurred. Please try again.');
         });
     },
+    
+    handleViewEventClick(eventId) {
+        if (!this.currentUser) {
+            this.openModal();
+            return;
+        }
+
+        this.showDashboard();
+        this.switchDashTab('browse');
+
+        // Scroll to the event card
+        document.getElementById('dashEventsContainer')?.scrollIntoView({ behavior: 'smooth' });
+    },
+
+    handleViewEventClick() {
+         if (!this.currentUser) {
+        this.openAuthTab('register');
+        return;
+    }
+
+    if (this.currentUser.role === 'organizer') {
+        this.showDashboard();
+        this.switchDashTab('create');
+        return;
+    }
+
+    // logged in but not organizer
+    this.openAuthTab('register');
+},
 
     handleLogout() {
         CampusData.logout();
@@ -238,6 +267,7 @@ const AppState = {
         this.renderLandingEvents();
     },
 
+    
     toggleDarkMode() {
         const bodyEl = document.body;
         const currentTheme = bodyEl.getAttribute('data-theme');
@@ -392,7 +422,7 @@ const AppState = {
                         <div class="event-attendees"><i class="fas fa-users"></i><span>${ev.attendeeCount} attending</span></div>
                     </div>
                     <div class="event-tags">${(ev.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
-                    <button class="btn btn-primary btn-block" onclick="AppState.openModal()" style="width:100%;padding:0.75rem;margin-top:0.75rem">View Details</button>
+                    <button class="btn btn-primary btn-block" onclick="AppState.handleViewEventClick('${ev.id}')" style="width:100%;padding:0.75rem;margin-top:0.75rem">View Details</button>
                 </div>
             </article>`).join('');
     },
