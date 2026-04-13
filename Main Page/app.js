@@ -33,6 +33,73 @@ const AppState = {
         }
     },
 
+    openEventAnalytics(eventId) {
+    if (!this.currentUser || this.currentUser.role !== 'organizer') {
+        alert("Only organizers can view analytics.");
+        return;
+    }
+
+    const event = CampusData.getEventById(eventId);
+
+    if (!event) {
+        alert("Event not found.");
+        return;
+    }
+
+    if (event.organizerId !== this.currentUser.id) {
+        alert("You can only view analytics for your own events.");
+        return;
+    }
+
+    this.renderEventAnalytics(event);
+    document.getElementById('eventAnalyticsModal').classList.add('active');
+},
+
+closeEventAnalytics() {
+    document.getElementById('eventAnalyticsModal').classList.remove('active');
+},
+
+renderEventAnalytics(event) {
+    const container = document.getElementById('eventAnalyticsContent');
+
+    const attendeeCount = event.attendeeCount || 0;
+    const status = event.status || 'unknown';
+    const tagCount = (event.tags || []).length;
+
+    container.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-bottom:1rem">
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Event Title</h4>
+                <p style="margin:0;font-weight:700;color:#4F46E5">${event.title}</p>
+            </div>
+
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Status</h4>
+                <p style="margin:0;font-weight:700">${status.charAt(0).toUpperCase() + status.slice(1)}</p>
+            </div>
+
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Attendees</h4>
+                <p style="margin:0;font-size:1.6rem;font-weight:700;color:#10B981">${attendeeCount}</p>
+            </div>
+
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Tags Used</h4>
+                <p style="margin:0;font-size:1.6rem;font-weight:700;color:#F59E0B">${tagCount}</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin:0">
+            <h4 style="margin:0 0 1rem 0">Event Info</h4>
+            <p style="margin:0 0 0.5rem 0"><strong>Date:</strong> ${CampusData.formatDate(event.date)}</p>
+            <p style="margin:0 0 0.5rem 0"><strong>Time:</strong> ${CampusData.formatTime(event.time)}</p>
+            <p style="margin:0 0 0.5rem 0"><strong>Location:</strong> ${event.location}</p>
+            <p style="margin:0 0 0.5rem 0"><strong>Category:</strong> ${event.category}</p>
+            <p style="margin:0.75rem 0 0 0;color:#6B7280">${event.description}</p>
+        </div>
+    `;
+},
+
     openAnalyticsModal() {
     if (!this.currentUser || this.currentUser.role !== 'organizer') {
         alert("Only organizers can view analytics.");
@@ -206,15 +273,25 @@ renderAnalyticsModal() {
                 </div>
 
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                    <button class="btn btn-outline" onclick="AppState.openEventAnalytics('${ev.id}')" style="padding:0.55rem 1rem">
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </button>
                     <button class="btn btn-danger" onclick="AppState.deleteMyEvent('${ev.id}')" style="padding:0.55rem 1rem">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
-            </div>
+            </div>  
         `).join('');
     },
     // Setup all event listeners
     setupEventListeners() {
+        // Modal close on background click - Event Analytics
+
+                document.getElementById('eventAnalyticsModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'eventAnalyticsModal') {
+                this.closeEventAnalytics();
+            }
+        });
         // Modal close on background click
         document.getElementById('analyticsModal')?.addEventListener('click', (e) => {
             if (e.target.id === 'analyticsModal') {
@@ -549,28 +626,28 @@ renderAnalyticsModal() {
     },
 
     // Dashboard role-based UI
-    updateDashboardReadonly() {
-        const createTab = document.getElementById('createTab');
-        const myEventsTab = document.getElementById('myEventsTab');
-        const pendingTab = document.getElementById('pendingTab');
-        const usersTab = document.getElementById('usersTab');
+   updateDashboardReadonly() {
+    const createTab = document.getElementById('createTab');
+    const myEventsTab = document.getElementById('myEventsTab');
+    const analyticsTab = document.getElementById('analyticsTab'); // 👈 IMPORTANT
+    const pendingTab = document.getElementById('pendingTab');
+    const usersTab = document.getElementById('usersTab');
 
-        // reset everything first
-        if (createTab) createTab.style.display = 'none';
-        if (myEventsTab) myEventsTab.style.display = 'none';
-        if (pendingTab) pendingTab.style.display = 'none';
-        if (usersTab) usersTab.style.display = 'none';
+    // reset
+    if (createTab) createTab.style.display = 'none';
+    if (myEventsTab) myEventsTab.style.display = 'none';
+    if (analyticsTab) analyticsTab.style.display = 'none';
+    if (pendingTab) pendingTab.style.display = 'none';
+    if (usersTab) usersTab.style.display = 'none';
 
-        if (this.currentUser?.role === 'organizer') {
-            if (createTab) createTab.style.display = 'inline-block';
-            if (myEventsTab) myEventsTab.style.display = 'inline-block';
-        } else if (this.currentUser?.role === 'admin') {
-            if (pendingTab) pendingTab.style.display = 'inline-block';
-            if (usersTab) usersTab.style.display = 'inline-block';
-        }
+    if (this.currentUser?.role === 'organizer') {
+        if (createTab) createTab.style.display = 'inline-block';
+        if (myEventsTab) myEventsTab.style.display = 'inline-block';
+        if (analyticsTab) analyticsTab.style.display = 'inline-block'; // 👈 THIS LINE
+    }
 
-        document.getElementById('userWelcome').textContent = this.currentUser.username;
-    },
+    document.getElementById('userWelcome').textContent = this.currentUser.username;
+},
 
     // Dashboard tab switching
     switchDashTab(tab, e) {
