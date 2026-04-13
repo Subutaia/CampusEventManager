@@ -32,6 +32,54 @@ const AppState = {
             this.showLanding();
         }
     },
+    renderMyEvents() {
+    const container = document.getElementById('dashMyEventsContainer');
+
+    if (!this.currentUser || this.currentUser.role !== 'organizer') {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>Only organizers can view created events.</p></div>';
+        return;
+    }
+
+    const events = CampusData.getEventsByOrganizer(this.currentUser.id);
+
+    if (!events.length) {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-plus"></i><p>You have not created any events yet.</p></div>';
+        return;
+    }
+
+    container.innerHTML = events.map(ev => `
+        <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.75rem;gap:1rem">
+                <div style="flex:1">
+                    <h4 style="margin:0 0 0.5rem 0">${ev.title}</h4>
+                    <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280">
+                        <span><i class="far fa-calendar"></i> ${CampusData.formatDate(ev.date)}</span>
+                        <span><i class="far fa-clock"></i> ${CampusData.formatTime(ev.time)}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${ev.location}</span>
+                    </div>
+                </div>
+                <span class="tag" style="
+                    background:${ev.status === 'approved' ? '#D1FAE5' : ev.status === 'pending' ? '#FEF3C7' : '#FEE2E2'};
+                    color:${ev.status === 'approved' ? '#065F46' : ev.status === 'pending' ? '#92400E' : '#991B1B'};
+                    font-weight:600;
+                ">
+                    ${ev.status.charAt(0).toUpperCase() + ev.status.slice(1)}
+                </span>
+            </div>
+
+            <p style="margin:0.75rem 0;color:#4B5563">${ev.description}</p>
+
+            <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280;margin-bottom:0.75rem">
+                <span><i class="fas fa-users"></i> ${ev.attendeeCount || 0} attending</span>
+                <span><i class="fas fa-folder"></i> ${ev.category}</span>
+            </div>
+
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+                ${(ev.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+        </div>
+    `).join('');
+},
 
     // Setup all event listeners
     setupEventListeners() {
@@ -324,14 +372,22 @@ const AppState = {
     // Dashboard role-based UI
     updateDashboardReadonly() {
         const createTab = document.getElementById('createTab');
+        const myEventsTab = document.getElementById('myEventsTab');
         const pendingTab = document.getElementById('pendingTab');
         const usersTab = document.getElementById('usersTab');
 
+        // reset everything first
+        if (createTab) createTab.style.display = 'none';
+        if (myEventsTab) myEventsTab.style.display = 'none';
+        if (pendingTab) pendingTab.style.display = 'none';
+        if (usersTab) usersTab.style.display = 'none';
+
         if (this.currentUser?.role === 'organizer') {
-            createTab.style.display = 'inline-block';
+            if (createTab) createTab.style.display = 'inline-block';
+            if (myEventsTab) myEventsTab.style.display = 'inline-block';
         } else if (this.currentUser?.role === 'admin') {
-            pendingTab.style.display = 'inline-block';
-            usersTab.style.display = 'inline-block';
+            if (pendingTab) pendingTab.style.display = 'inline-block';
+            if (usersTab) usersTab.style.display = 'inline-block';
         }
 
         document.getElementById('userWelcome').textContent = this.currentUser.username;
@@ -347,10 +403,11 @@ const AppState = {
         document.querySelectorAll('.dashboard-panel').forEach(p => p.classList.remove('active'));
         
         // Find and activate the matching button by text content
-        const tabMap = {
+            const tabMap = {
             'browse': 'Browse Events',
             'my-rsvps': 'My RSVPs',
             'create': 'Create Event',
+            'my-events': 'My Events',
             'pending': 'Pending',
             'users': 'Manage Users',
             'notifications': 'Notifications'
@@ -373,6 +430,7 @@ const AppState = {
         if (tab === 'notifications') this.renderNotifications();
         if (tab === 'pending') this.renderPendingEvents();
         if (tab === 'users') this.renderUsersTable();
+        if (tab === 'my-events') this.renderMyEvents();
     },
 
     // Event rendering - Landing page
@@ -703,6 +761,8 @@ const AppState = {
         const category = document.getElementById('evCategory').value;
         const tags = document.getElementById('evTags').value.split(',').map(t => t.trim()).filter(t => t);
         const errorEl = document.getElementById('createError');
+        alert('Event submitted for approval! Admins will review it shortly.');
+        this.switchDashTab('my-events');
 
         if (!title || !description || !date || !time || !location || !category) {
             this.showError(errorEl, 'Please fill in all required fields.');

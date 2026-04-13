@@ -453,6 +453,9 @@
                 <button class="dashboard-tab" onclick="AppState.switchDashTab('notifications', event)">
                     <i class="fas fa-bell"></i> Notifications
                 </button>
+                <button class="dashboard-tab" id="myEventsTab" onclick="AppState.switchDashTab('my-events', event)" style="display:none">
+                    <i class="fas fa-calendar-alt"></i> My Events
+                </button>
             </div>
         </div>
 
@@ -472,6 +475,10 @@
             </div>
 
             <!-- Create Event Tab (Organizer) -->
+             <div class="dashboard-panel" id="my-eventsPanel">
+                <h3 style="margin:0 0 1rem 0">My Created Events</h3>
+                <div id="dashMyEventsContainer"></div>
+            </div>
             <div class="dashboard-panel" id="createPanel">
                 <h3 style="margin:0 0 1rem 0">Create New Event</h3>
                 <div class="card">
