@@ -353,6 +353,21 @@
             </div>
         </div>
     </nav>
+<!-- Analytics Modal -->
+    <div class="modal-overlay" id="analyticsModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="AppState.closeAnalyticsModal()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div style="margin-bottom:1.5rem">
+            <h2 style="margin:0 0 0.5rem 0">Organizer Analytics</h2>
+            <p style="margin:0;color:#6B7280">Overview of your created events</p>
+        </div>
+
+        <div id="analyticsModalContent"></div>
+    </div>
+</div>
     
     <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
@@ -455,6 +470,9 @@
                 </button>
                 <button class="dashboard-tab" id="myEventsTab" onclick="AppState.switchDashTab('my-events', event)" style="display:none">
                     <i class="fas fa-calendar-alt"></i> My Events
+                </button>
+                <button class="dashboard-tab" id="analyticsTab" onclick="AppState.openAnalyticsModal()" style="display:none">
+                    <i class="fas fa-chart-bar"></i> Analytics
                 </button>
             </div>
         </div>

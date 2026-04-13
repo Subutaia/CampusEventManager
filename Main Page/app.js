@@ -17,7 +17,7 @@ const AppState = {
     currentUser: null,
     currentAuthTab: 'login',
     currentDashTab: 'browse',
-
+    
     // Initialize app on page load
     init() {
         this.currentUser = CampusData.getCurrentUser();
@@ -32,6 +32,83 @@ const AppState = {
             this.showLanding();
         }
     },
+
+    openAnalyticsModal() {
+    if (!this.currentUser || this.currentUser.role !== 'organizer') {
+        alert("Only organizers can view analytics.");
+        return;
+    }
+
+    this.renderAnalyticsModal();
+    document.getElementById('analyticsModal').classList.add('active');
+},
+
+closeAnalyticsModal() {
+    document.getElementById('analyticsModal').classList.remove('active');
+},
+
+renderAnalyticsModal() {
+    const container = document.getElementById('analyticsModalContent');
+
+    if (!this.currentUser || this.currentUser.role !== 'organizer') {
+        container.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>Analytics are only available for organizers.</p></div>';
+        return;
+    }
+
+    const events = CampusData.getEventsByOrganizer(this.currentUser.id);
+
+    const totalEvents = events.length;
+    const approvedEvents = events.filter(e => e.status === 'approved').length;
+    const pendingEvents = events.filter(e => e.status === 'pending').length;
+    const rejectedEvents = events.filter(e => e.status === 'rejected').length;
+    const totalAttendees = events.reduce((sum, e) => sum + (e.attendeeCount || 0), 0);
+
+    const topEvent = events.length
+        ? [...events].sort((a, b) => (b.attendeeCount || 0) - (a.attendeeCount || 0))[0]
+        : null;
+
+    container.innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-bottom:1.5rem">
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Total Events</h4>
+                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#4F46E5">${totalEvents}</p>
+            </div>
+
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Total Attendees</h4>
+                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#10B981">${totalAttendees}</p>
+            </div>
+
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Approved</h4>
+                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#059669">${approvedEvents}</p>
+            </div>
+
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Pending</h4>
+                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#D97706">${pendingEvents}</p>
+            </div>
+        </div>
+
+        <div class="card" style="margin:0">
+            <h4 style="margin:0 0 1rem 0">Rejected</h4>
+            <p style="font-size:1.25rem;font-weight:700;margin:0;color:#DC2626">${rejectedEvents}</p>
+        </div>
+
+        <div class="card" style="margin-top:1rem">
+            <h4 style="margin:0 0 1rem 0">Top Event</h4>
+            ${
+                topEvent
+                    ? `
+                        <p style="margin:0 0 0.5rem 0;font-weight:700">${topEvent.title}</p>
+                        <p style="margin:0;color:#6B7280">${topEvent.attendeeCount || 0} attendees</p>
+                        <p style="margin:0.5rem 0 0 0;color:#6B7280">${CampusData.formatDate(topEvent.date)} • ${topEvent.location}</p>
+                    `
+                    : '<p style="margin:0;color:#6B7280">No events yet.</p>'
+            }
+        </div>
+    `;
+},
     renderMyEvents() {
     const container = document.getElementById('dashMyEventsContainer');
 
@@ -80,9 +157,70 @@ const AppState = {
         </div>
     `).join('');
 },
+     
 
+    renderMyEvents() {
+        const container = document.getElementById('dashMyEventsContainer');
+
+        if (!this.currentUser || this.currentUser.role !== 'organizer') {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>Only organizers can view created events.</p></div>';
+            return;
+        }
+
+        const events = CampusData.getEventsByOrganizer(this.currentUser.id);
+
+        if (!events.length) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-plus"></i><p>You have not created any events yet.</p></div>';
+            return;
+        }
+
+        container.innerHTML = events.map(ev => `
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.75rem;gap:1rem">
+                    <div style="flex:1">
+                        <h4 style="margin:0 0 0.5rem 0">${ev.title}</h4>
+                        <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280">
+                            <span><i class="far fa-calendar"></i> ${CampusData.formatDate(ev.date)}</span>
+                            <span><i class="far fa-clock"></i> ${CampusData.formatTime(ev.time)}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${ev.location}</span>
+                        </div>
+                    </div>
+                    <span class="tag" style="
+                        background:${ev.status === 'approved' ? '#D1FAE5' : ev.status === 'pending' ? '#FEF3C7' : '#FEE2E2'};
+                        color:${ev.status === 'approved' ? '#065F46' : ev.status === 'pending' ? '#92400E' : '#991B1B'};
+                        font-weight:600;
+                    ">
+                        ${ev.status.charAt(0).toUpperCase() + ev.status.slice(1)}
+                    </span>
+                </div>
+
+                <p style="margin:0.75rem 0;color:#4B5563">${ev.description}</p>
+
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280;margin-bottom:0.75rem">
+                    <span><i class="fas fa-users"></i> ${ev.attendeeCount || 0} attending</span>
+                    <span><i class="fas fa-folder"></i> ${ev.category}</span>
+                </div>
+
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
+                    ${(ev.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                    <button class="btn btn-danger" onclick="AppState.deleteMyEvent('${ev.id}')" style="padding:0.55rem 1rem">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    },
     // Setup all event listeners
     setupEventListeners() {
+        // Modal close on background click
+        document.getElementById('analyticsModal')?.addEventListener('click', (e) => {
+            if (e.target.id === 'analyticsModal') {
+                this.closeAnalyticsModal();
+            }
+        });
         // Auth modal & form
         document.getElementById('loginPassword')?.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') this.handleLogin();
@@ -121,6 +259,39 @@ const AppState = {
         }
     },
 
+    deleteMyEvent(eventId) {
+    if (!this.currentUser || this.currentUser.role !== 'organizer') {
+        alert("Only organizers can delete their events.");
+        return;
+    }
+
+    const event = CampusData.getEventById(eventId);
+
+    if (!event) {
+        alert("Event not found.");
+        return;
+    }
+
+    if (event.organizerId !== this.currentUser.id) {
+        alert("You can only delete your own events.");
+        return;
+    }
+
+    if (!confirm(`Delete "${event.title}"? This cannot be undone.`)) {
+        return;
+    }
+
+    CampusData.deleteEvent(eventId);
+
+    // live refresh everywhere
+    this.renderMyEvents();
+    this.renderBrowseEvents();
+    this.renderLandingEvents();
+    this.renderFeaturedEvents();
+    this.renderCalendarSnippet();
+
+    alert("Event deleted successfully.");
+},
     // Modal management
     openModal() {
         document.getElementById('loginModal').classList.add('active');
@@ -180,12 +351,16 @@ const AppState = {
                 return;
             }
 
-            // Store token and user info
+            const normalizedUser = {
+                ...data.data.user,
+                id: data.data.user.id || data.data.user._id
+            };
+
             localStorage.setItem('cem_token', data.data.token);
-            CampusData.setCurrentUser(data.data.user);
+            CampusData.setCurrentUser(normalizedUser);
 
             // Update current user
-            this.currentUser = data.data.user;
+            this.currentUser = normalizedUser;
             
             // Clear form
             document.getElementById('loginUsername').value = '';
@@ -251,12 +426,16 @@ const AppState = {
                 return;
             }
 
-            // Store token and user info
-            localStorage.setItem('cem_token', data.data.token);
-            CampusData.setCurrentUser(data.data.user);
+        const normalizedUser = {
+            ...data.data.user,
+            id: data.data.user.id || data.data.user._id
+        };
 
-            // Update current user
-            this.currentUser = data.data.user;
+        localStorage.setItem('cem_token', data.data.token);
+        CampusData.setCurrentUser(normalizedUser);
+
+        // Update current user
+        this.currentUser = normalizedUser;
             
             // Clear form
             document.getElementById('regUsername').value = '';
