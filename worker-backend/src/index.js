@@ -304,5 +304,5 @@ app.onError((err, c) => {
     status: 500
   }, 500);
 });
-c.env.GEMINI_API_KEY
+
 export default app;

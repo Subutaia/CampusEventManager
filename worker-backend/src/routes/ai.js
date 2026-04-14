@@ -1,3 +1,15 @@
+import { Hono } from 'hono';
+
+const ai = new Hono();
+
+ai.post('/generate-description', async (c) => {
+    return c.json({
+        success: true,
+        description: 'Test description from AI route'
+    });
+});
+
+export default ai;
 export async function handleAI(request, env) {
     const url = new URL(request.url);
 

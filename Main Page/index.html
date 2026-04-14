@@ -368,7 +368,42 @@
         <div id="eventAnalyticsContent"></div>
     </div>
 </div>
-    
+
+<!-- AI Description Modal -->
+    <div class="modal-overlay" id="aiModal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="AppState.closeAiModal()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div style="margin-bottom:1rem">
+            <h2 style="margin:0 0 0.5rem 0">Generate Event Description</h2>
+            <p style="margin:0;color:#6B7280">
+                Give a short idea and AI will turn it into a polished event description.
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Your Idea</label>
+            <textarea
+                class="form-textarea"
+                id="aiPrompt"
+                rows="4"
+                placeholder="e.g. beginner-friendly Python workshop with networking and snacks"
+            ></textarea>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:0.75rem">
+            <button type="button" class="btn btn-outline" onclick="AppState.closeAiModal()">
+                Cancel
+            </button>
+            <button type="button" class="btn btn-primary" onclick="AppState.generateAiDescription()">
+                Generate
+            </button>
+        </div>
+    </div>
+</div>
+
     <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-content">
@@ -503,32 +538,20 @@
                             <input class="form-input" type="text" id="evTitle" required>
                         </div>
                         <div class="form-group">
-                        <label class="form-label">Description *</label>
-                        <textarea class="form-textarea" id="evDescription" rows="4" required></textarea>
+                            <label class="form-label">Description *</label>
+                            <textarea class="form-textarea" id="evDescription" rows="4" required></textarea>
 
-                        <!-- AI Input -->
-                        <div style="margin-top:0.75rem">
-                            <label class="form-label">AI Prompt</label>
-                            <input
-                                class="form-input"
-                                type="text"
-                                id="aiPrompt"
-                                placeholder="e.g. beginner friendly coding event with prizes"
-                            >
+                            <div style="margin-top:0.75rem;display:flex;justify-content:flex-end">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline"
+                                    onclick="AppState.openAiModal()"
+                                    style="padding:0.55rem 1rem"
+                                >
+                                    <i class="fas fa-wand-magic-sparkles"></i> Generate with AI
+                                </button>
+                            </div>
                         </div>
-
-                        <!-- AI Button -->
-                        <div style="margin-top:0.75rem;display:flex;justify-content:flex-end">
-                            <button
-                                type="button"
-                                class="btn btn-outline"
-                                onclick="AppState.generateAiDescription()"
-                                style="padding:0.55rem 1rem"
-                            >
-                                <i class="fas fa-wand-magic-sparkles"></i> Generate with AI
-                            </button>
-                        </div>
-                    </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
                             <div class="form-group">
                                 <label class="form-label">Date *</label>

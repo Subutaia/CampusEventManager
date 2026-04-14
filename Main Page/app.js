@@ -18,6 +18,56 @@ const AppState = {
     currentAuthTab: 'login',
     currentDashTab: 'browse',
 
+
+// AI Description Generation
+    openAiModal() {
+    document.getElementById('aiModal').classList.add('active');
+},
+
+closeAiModal() {
+    document.getElementById('aiModal').classList.remove('active');
+},
+
+async generateAiDescription() {
+    const title = document.getElementById('evTitle').value.trim();
+    const category = document.getElementById('evCategory').value;
+    const prompt = document.getElementById('aiPrompt').value.trim();
+    const descriptionBox = document.getElementById('evDescription');
+
+    if (!prompt) {
+        alert("Enter a short idea first.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/ai/generate-description`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title,
+                category,
+                prompt
+            })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+            alert(data.error || "Failed to generate description.");
+            return;
+        }
+
+        descriptionBox.value = data.description;
+        this.closeAiModal();
+        document.getElementById('aiPrompt').value = '';
+    } catch (err) {
+        console.error("AI error:", err);
+        alert("Something went wrong while generating the description.");
+    }
+},
+
 // AI description generation
     async generateAiDescription() {
     const title = document.getElementById('evTitle').value.trim();
@@ -330,6 +380,13 @@ renderAnalyticsModal() {
     },
     // Setup all event listeners
     setupEventListeners() {
+
+        // Modal close on background click - AI Description Generation
+        document.getElementById('aiModal')?.addEventListener('click', (e) => {
+    if (e.target.id === 'aiModal') {
+        this.closeAiModal();
+    }
+});
         // Modal close on background click - Event Analytics
 
                 document.getElementById('eventAnalyticsModal')?.addEventListener('click', (e) => {
