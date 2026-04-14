@@ -3,66 +3,52 @@ import { Hono } from 'hono';
 const ai = new Hono();
 
 ai.post('/generate-description', async (c) => {
-    return c.json({
-        success: true,
-        description: 'Test description from AI route'
-    });
-});
+    try {
+        const { title = '', category = '', prompt = '' } = await c.req.json();
 
-export default ai;
-export async function handleAI(request, env) {
-    const url = new URL(request.url);
+        // 🔑 HERE is where your key is used
+        const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${c.env.GEMINI_API_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: `
+Write a clean, professional campus event description in 2-3 sentences.
 
-    if (url.pathname === '/api/ai/generate-description' && request.method === 'POST') {
-        return handleGenerateDescription(request, env);
-    }
-
-    return new Response("Not Found", { status: 404 });
-}
-async function handleGenerateDescription(request, env) {
-    const { title = '', category = '', prompt = '' } = await request.json();
-
-    const systemInstruction = `
-You are helping organizers write campus event descriptions.
-Write exactly 2 to 3 sentences.
-Keep it clear, friendly, and professional.
-Do not use bullet points.
-Do not invent details that were not provided.
-    `;
-
-    const userPrompt = `
 Event title: ${title}
 Category: ${category}
 Organizer notes: ${prompt}
-    `;
+                                    `
+                                }
+                            ]
+                        }
+                    ]
+                })
+            }
+        );
 
-    const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${env.GEMINI_API_KEY}`,
-        {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                systemInstruction: {
-                    parts: [{ text: systemInstruction }]
-                },
-                contents: [
-                    {
-                        parts: [{ text: userPrompt }]
-                    }
-                ]
-            })
-        }
-    );
+        const data = await res.json();
 
-    const data = await res.json();
+        const description =
+            data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
 
-    const description =
-        data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        return c.json({
+            success: true,
+            description
+        });
 
-    return new Response(JSON.stringify({
-        success: true,
-        description
-    }), {
-        headers: { 'Content-Type': 'application/json' }
-    });
-}
+    } catch (error) {
+        console.error("AI error:", error);
+        return c.json({
+            success: false,
+            error: "AI generation failed"
+        }, 500);
+    }
+});
+
+export default ai;

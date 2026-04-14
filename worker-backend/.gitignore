@@ -17,3 +17,5 @@ yarn-error.log*
 *~
 .cache/
 wrangler.toml.backup
+.dev.vars*
+.env*
