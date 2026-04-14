@@ -17,6 +17,11 @@ const AppState = {
     currentUser: null,
     currentAuthTab: 'login',
     currentDashTab: 'browse',
+
+    // AI description generation placeholder
+        aiDescriptionComingSoon() {
+        alert("AI description generation is not implemented yet.");
+    },
     
     // Initialize app on page load
     init() {

@@ -505,6 +505,17 @@
                         <div class="form-group">
                             <label class="form-label">Description *</label>
                             <textarea class="form-textarea" id="evDescription" rows="4" required></textarea>
+
+                            <div style="margin-top:0.75rem;display:flex;justify-content:flex-end">
+                                <button 
+                                    type="button" 
+                                    class="btn btn-outline" 
+                                    onclick="AppState.aiDescriptionComingSoon()"
+                                    style="padding:0.55rem 1rem"
+                                >
+                                    <i class="fas fa-wand-magic-sparkles"></i> Generate with AI
+                                </button>
+                            </div>
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
                             <div class="form-group">
