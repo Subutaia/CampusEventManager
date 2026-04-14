@@ -730,26 +730,31 @@ renderAnalyticsModal() {
     // Dashboard role-based UI
    updateDashboardReadonly() {
     const createTab = document.getElementById('createTab');
-    const myEventsTab = document.getElementById('myEventsTab');
-    const analyticsTab = document.getElementById('analyticsTab'); // 👈 IMPORTANT
     const pendingTab = document.getElementById('pendingTab');
     const usersTab = document.getElementById('usersTab');
+    const myEventsTab = document.getElementById('myEventsTab');
 
-    // reset
+    // RESET everything first
     if (createTab) createTab.style.display = 'none';
-    if (myEventsTab) myEventsTab.style.display = 'none';
-    if (analyticsTab) analyticsTab.style.display = 'none';
     if (pendingTab) pendingTab.style.display = 'none';
     if (usersTab) usersTab.style.display = 'none';
+    if (myEventsTab) myEventsTab.style.display = 'none';
 
+    // Organizer tabs
     if (this.currentUser?.role === 'organizer') {
         if (createTab) createTab.style.display = 'inline-block';
         if (myEventsTab) myEventsTab.style.display = 'inline-block';
-        if (analyticsTab) analyticsTab.style.display = 'inline-block'; // 👈 THIS LINE
     }
 
+    // Admin tabs
+    if (this.currentUser?.role === 'admin') {
+        if (pendingTab) pendingTab.style.display = 'inline-block';
+        if (usersTab) usersTab.style.display = 'inline-block';
+    }
+
+    // Welcome text
     document.getElementById('userWelcome').textContent = this.currentUser.username;
-},
+}
 
     // Dashboard tab switching
     switchDashTab(tab, e) {
