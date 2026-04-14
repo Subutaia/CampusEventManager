@@ -734,28 +734,32 @@ renderAnalyticsModal() {
     const usersTab = document.getElementById('usersTab');
     const myEventsTab = document.getElementById('myEventsTab');
 
-    // RESET everything first
+    console.log('current user:', this.currentUser);
+    console.log('createTab:', createTab);
+    console.log('pendingTab:', pendingTab);
+    console.log('usersTab:', usersTab);
+    console.log('myEventsTab:', myEventsTab);
+
     if (createTab) createTab.style.display = 'none';
     if (pendingTab) pendingTab.style.display = 'none';
     if (usersTab) usersTab.style.display = 'none';
     if (myEventsTab) myEventsTab.style.display = 'none';
 
-    // Organizer tabs
     if (this.currentUser?.role === 'organizer') {
         if (createTab) createTab.style.display = 'inline-block';
         if (myEventsTab) myEventsTab.style.display = 'inline-block';
     }
 
-    // Admin tabs
     if (this.currentUser?.role === 'admin') {
         if (pendingTab) pendingTab.style.display = 'inline-block';
         if (usersTab) usersTab.style.display = 'inline-block';
     }
 
-    // Welcome text
-    document.getElementById('userWelcome').textContent = this.currentUser.username;
-}
-
+    const welcome = document.getElementById('userWelcome');
+    if (welcome && this.currentUser?.username) {
+        welcome.textContent = this.currentUser.username;
+    }
+},
     // Dashboard tab switching
     switchDashTab(tab, e) {
         if (e) e.preventDefault();
