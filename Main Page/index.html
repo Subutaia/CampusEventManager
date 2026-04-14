@@ -503,20 +503,32 @@
                             <input class="form-input" type="text" id="evTitle" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Description *</label>
-                            <textarea class="form-textarea" id="evDescription" rows="4" required></textarea>
+                        <label class="form-label">Description *</label>
+                        <textarea class="form-textarea" id="evDescription" rows="4" required></textarea>
 
-                            <div style="margin-top:0.75rem;display:flex;justify-content:flex-end">
-                                <button 
-                                    type="button" 
-                                    class="btn btn-outline" 
-                                    onclick="AppState.aiDescriptionComingSoon()"
-                                    style="padding:0.55rem 1rem"
-                                >
-                                    <i class="fas fa-wand-magic-sparkles"></i> Generate with AI
-                                </button>
-                            </div>
+                        <!-- AI Input -->
+                        <div style="margin-top:0.75rem">
+                            <label class="form-label">AI Prompt</label>
+                            <input
+                                class="form-input"
+                                type="text"
+                                id="aiPrompt"
+                                placeholder="e.g. beginner friendly coding event with prizes"
+                            >
                         </div>
+
+                        <!-- AI Button -->
+                        <div style="margin-top:0.75rem;display:flex;justify-content:flex-end">
+                            <button
+                                type="button"
+                                class="btn btn-outline"
+                                onclick="AppState.generateAiDescription()"
+                                style="padding:0.55rem 1rem"
+                            >
+                                <i class="fas fa-wand-magic-sparkles"></i> Generate with AI
+                            </button>
+                        </div>
+                    </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
                             <div class="form-group">
                                 <label class="form-label">Date *</label>

@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import eventRoutes from './routes/events.js';
 import rsvpRoutes from './routes/rsvps.js';
 import notificationRoutes from './routes/notifications.js';
+import aiRoutes from './routes/ai.js';
 
 const app = new Hono();
 
@@ -284,6 +285,7 @@ app.post('/api/debug/test-sendgrid-raw', async (c) => {
 });
 
 // Routes
+app.route('/api/ai', aiRoutes);
 app.route('/api/auth', authRoutes);
 app.route('/api/events', eventRoutes);
 app.route('/api/rsvps', rsvpRoutes);
@@ -302,5 +304,5 @@ app.onError((err, c) => {
     status: 500
   }, 500);
 });
-
+c.env.GEMINI_API_KEY
 export default app;

@@ -18,6 +18,46 @@ const AppState = {
     currentAuthTab: 'login',
     currentDashTab: 'browse',
 
+// AI description generation
+    async generateAiDescription() {
+    const title = document.getElementById('evTitle').value.trim();
+    const category = document.getElementById('evCategory').value;
+    const prompt = document.getElementById('aiPrompt').value.trim();
+    const descriptionBox = document.getElementById('evDescription');
+
+    if (!prompt) {
+        alert("Enter a short AI prompt first.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/api/ai/generate-description`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('cem_token') || ''}`
+            },
+            body: JSON.stringify({
+                title,
+                category,
+                prompt
+            })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+            alert(data.error || "Failed to generate description.");
+            return;
+        }
+
+        descriptionBox.value = data.description;
+    } catch (err) {
+        console.error("AI generation error:", err);
+        alert("Something went wrong while generating the description.");
+    }
+},
+
     // AI description generation placeholder
         aiDescriptionComingSoon() {
         alert("AI description generation is not implemented yet.");

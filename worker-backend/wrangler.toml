@@ -10,3 +10,6 @@ name = "campus-event-manager"
 DB_NAME = "CampusEventManager"
 SENDER_EMAIL = "noreply@campuseventmanager.com"
 NODE_ENV = "production"
+
+[vars]
+GEMINI_API_KEY = "AIzaSyA0IOT5oWt-9Apb09YCxn5U8qbGs3RlwaY"
