@@ -717,13 +717,76 @@
     </section>
 
     <section class="events-section" id="about">
-        <div class="container text-center">
+        <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Built for Campus Life</h2>
+                <h2 class="section-title">Project Purpose</h2>
             </div>
-            <p class="hero-subtitle about-copy">
-                Campus Event Manager helps students discover activities, follow upcoming programs, and stay connected with the events that matter across campus.
+            <p class="hero-subtitle">
+                Campus Event Manager is a specialized platform designed to bridge the gap between students and campus life.
+                Built specifically for the academic environment, the system serves as a centralized hub where students can discover activities,
+                stay informed about upcoming programs, and actively engage with the events that matter most to their campus community.
+                By providing a real-time, searchable calendar of technology workshops, cultural festivals, career fairs, and sporting events,
+                the platform ensures that no student misses out on the opportunities that define the college experience.
             </p>
+            <div class="section-header">
+                <h2 class="section-title">User Roles & Capabilities</h2>
+            </div>
+            <p class="hero-subtitle">
+                Usage of Campus Event Manager is divided into three distict roles:
+            </p>
+            <ul class="hero-subtitle" style="list-style-type:disc">
+                <li>
+                    User - Browse and search for events across carious categories, sign up for events to track personal attentance,
+                    and recieve real-time updates and alerts regarding events they have RSVP'd to
+                </li>
+                <li>
+                    Organizer - Access a dedicated dashboard to draft and submit new event proposals, propose events for specific
+                    categories and add relevant tags to increase visibility, and submit created events to the admin queue for
+                    approval before they are published
+                </li>
+                <li>
+                    Admin - Review all pending event submissions from organizers with authority to approve for public viewing or
+                    delete appropriate entries, manage the user database and view or delete registered accounts, and supervise
+                    the general flow of campus activities and platform health
+                </li>
+            </ul>
+            <div class="section-header">
+                <h2 class="section-title">Data Storage & Security</h2>
+            </div>
+            <p class="hero-subtitle">
+                All persistent storage is organized into structured collections using MongoDB Atlas, a cloud-based NoSQL database,
+                to allow for flexible and scalable management of campus information including user data, event data, and application states.
+                <br/>
+                User security is a core priority of the platform's architecture. Passwords are never stored in plain-text and are instead
+                stored using Bcrypt hashing, which allows for one-way protection of sensitive information and secure authentication
+                while never accessing the original plain-text password.
+            </p>
+            <div class="section-header">
+                <h2 class="section-title">Project Contributors</h2>
+            </div>
+            <div class="hero-subtitle" style="display: inline-flex; align-items: center; gap: 30px; text-align: left">
+                <img src="portraits/luke-langan.jpg" style="width: auto; height: 10rem; border-radius: 50%; object-fit: cover;" alt="Luke Langan"/>
+                <div style="display: block;">
+                    <p>
+                        Luke Langan<br/>
+                        <a href="mailto:luke.langan@siu.edu">luke.langan@siu.edu</a>
+                    </p>
+                </div>
+                <img src="portraits/placeholder.png" style="width: auto; height: 10rem; border-radius: 50%; object-fit: cover;" alt="Evan Rees"/>
+                <div style="display: block;">
+                    <p>
+                        Evan Rees<br/>
+                        <a href="mailto:evan.rees@siu.edu">evan.rees@siu.edu</a>
+                    </p>
+                </div>
+                <img src="portraits/luke-douglas.jpg" style="width: auto; height: 10rem; border-radius: 50%; object-fit: cover;" alt="Luke Douglas"/>
+                <div style="display: block;">
+                    <p>
+                        Luke Douglas<br/>
+                        <a href="mailto:luke.douglas@siu.edu">luke.douglas@siu.edu</a>
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
 
