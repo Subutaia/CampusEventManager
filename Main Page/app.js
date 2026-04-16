@@ -61,9 +61,30 @@ async generateAiDescription() {
             return;
         }
 
-        descriptionBox.value = data.description;
-        this.closeAiModal();
-        document.getElementById('aiPrompt').value = '';
+        const eventData = data.eventData || {};
+
+if (eventData.title) {
+    document.getElementById('evTitle').value = eventData.title;
+}
+
+if (eventData.description) {
+    document.getElementById('evDescription').value = eventData.description;
+}
+
+if (eventData.date) {
+    document.getElementById('evDate').value = eventData.date;
+}
+
+if (eventData.time) {
+    document.getElementById('evTime').value = eventData.time;
+}
+
+if (eventData.location) {
+    document.getElementById('evLocation').value = eventData.location;
+}
+
+this.closeAiModal();
+document.getElementById('aiPrompt').value = '';
     } catch (err) {
         console.error("AI error:", err);
         alert("Something went wrong while generating the description.");
