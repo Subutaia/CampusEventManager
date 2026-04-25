@@ -5,12 +5,10 @@
 
 // API Configuration - Change based on environment
 const API_BASE_URL = (() => {
-    // Local development - Cloudflare Workers local dev server
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-        return 'http://localhost:8787'; // Cloudflare Workers dev server
+        return 'http://localhost:8787';
     }
-    // Production - Cloudflare Workers deployed endpoint
-    return 'https://campus-event-manager-worker.memelord801.workers.dev';
+    return 'https://campuseventmanager.com';
 })();
 
 const AppState = {
