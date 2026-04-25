@@ -1,5 +1,40 @@
 import jwt from 'jsonwebtoken';
 
+
+const ALLOWED_ORIGINS = [
+  'https://campuseventmanager.com',
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
+
+export default {
+  async fetch(request, env) {
+    const origin = request.headers.get('Origin') ?? '';
+    const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : '';
+
+    // Handle preflight
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': allowedOrigin,
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Allow-Credentials': 'true',
+        },
+      });
+    }
+
+    // Forward to your Express backend
+    const response = await fetch(request);
+
+    // Clone and attach CORS headers to real response
+    const newResponse = new Response(response.body, response);
+    newResponse.headers.set('Access-Control-Allow-Origin', allowedOrigin);
+    newResponse.headers.set('Access-Control-Allow-Credentials', 'true');
+    return newResponse;
+  },
+};
 /**
  * Verify JWT token and attach user to context (Hono middleware)
  */
