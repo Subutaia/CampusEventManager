@@ -8,7 +8,7 @@ const API_BASE_URL = (() => {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:8787';
     }
-    return 'https://campuseventmanager.com';
+    return 'https://campus-event-manager-worker.memelord801.workers.dev';
 })();
 
 const AppState = {
@@ -789,8 +789,11 @@ renderAnalyticsModal() {
         let events = CampusData.getApprovedEvents();
 
         if (query) events = events.filter(e =>
-            e.title.toLowerCase().includes(query) || e.description.toLowerCase().includes(query) || e.location.toLowerCase().includes(query)
+            e.title.toLowerCase().includes(query) ||
+            e.description.toLowerCase().includes(query) ||
+            e.location.toLowerCase().includes(query)
         );
+
         if (category) events = events.filter(e => e.category === category);
         if (date === 'today') events = events.filter(e => this.isToday(e.date));
         if (date === 'this-week') events = events.filter(e => this.isThisWeek(e.date));
@@ -802,8 +805,10 @@ renderAnalyticsModal() {
         if (events.length === 0) {
             grid.innerHTML = '';
             noMsg.style.display = 'block';
+            this.renderFeaturedEvents();
             return;
         }
+
         noMsg.style.display = 'none';
 
         grid.innerHTML = events.map(ev => `
@@ -821,45 +826,51 @@ renderAnalyticsModal() {
                     <p class="event-description">${ev.description}</p>
                     <div class="event-footer">
                         <div class="event-location"><i class="fas fa-map-marker-alt"></i><span>${ev.location}</span></div>
-                        <div class="event-attendees"><i class="fas fa-users"></i><span>${ev.attendeeCount} attending</span></div>
+                        <div class="event-attendees"><i class="fas fa-users"></i><span>${ev.attendeeCount || 0} attending</span></div>
                     </div>
                     <div class="event-tags">${(ev.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
                     <button class="btn btn-primary btn-block" onclick="AppState.handleViewEventClick('${ev.id}')" style="width:100%;padding:0.75rem;margin-top:0.75rem">View Details</button>
                 </div>
-            </article>`).join('');
-    },
+            </article>
+        `).join('');
 
-    // Featured/Trending Events
-    renderFeaturedEvents() {
-        let events = CampusData.getApprovedEvents();
-        // Sort by attendee count and get top 6
-        const featured = events.sort((a, b) => b.attendeeCount - a.attendeeCount).slice(0, 6);
+        this.renderFeaturedEvents();
+},
 
-        const container = document.getElementById('featuredEvents');
-        if (featured.length === 0) {
-            container.innerHTML = '<p style="text-align:center;color:#6B7280">No events available yet.</p>';
-            return;
-        }
+renderFeaturedEvents() {
+    const events = CampusData.getApprovedEvents();
 
-        container.innerHTML = featured.map(ev => {
-            return `
-                <div class="featured-card">
-                    <div class="featured-content">
-                        <span class="featured-badge">${ev.category.charAt(0).toUpperCase() + ev.category.slice(1)}</span>
-                        <h3 class="featured-title">${ev.title}</h3>
-                        <div class="featured-meta">
-                            <span><i class="far fa-calendar"></i> ${CampusData.formatDate(ev.date)}</span>
-                            <span><i class="far fa-clock"></i> ${CampusData.formatTime(ev.time)}</span>
-                        </div>
-                        <p class="featured-desc">${ev.description.substring(0, 80)}...</p>
-                        <div class="featured-attendees">
-                            <i class="fas fa-users"></i>
-                            <span>${ev.attendeeCount} attending</span>
-                        </div>
-                    </div>
-                </div>`;
-        }).join('');
-    },
+    const featured = [...events]
+        .sort((a, b) => (b.attendeeCount || 0) - (a.attendeeCount || 0))
+        .slice(0, 6);
+
+    const container = document.getElementById('featuredEvents');
+
+    if (!container) return;
+
+    if (featured.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#6B7280">No events available yet.</p>';
+        return;
+    }
+
+    container.innerHTML = featured.map(ev => `
+        <div class="featured-card">
+            <div class="featured-content">
+                <span class="featured-badge">${ev.category.charAt(0).toUpperCase() + ev.category.slice(1)}</span>
+                <h3 class="featured-title">${ev.title}</h3>
+                <div class="featured-meta">
+                    <span><i class="far fa-calendar"></i> ${CampusData.formatDate(ev.date)}</span>
+                    <span><i class="far fa-clock"></i> ${CampusData.formatTime(ev.time)}</span>
+                </div>
+                <p class="featured-desc">${ev.description.substring(0, 80)}...</p>
+                <div class="featured-attendees">
+                    <i class="fas fa-users"></i>
+                    <span>${ev.attendeeCount || 0} attending</span>
+                </div>
+            </div>
+        </div>
+    `).join('');
+},
 
     // Calendar Snippet & Timeline
     renderCalendarSnippet() {
