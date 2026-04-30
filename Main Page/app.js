@@ -330,6 +330,10 @@ renderEventAnalytics(event) {
     const attendeeCount = event.attendeeCount || 0;
     const status = event.status || 'unknown';
     const tagCount = (event.tags || []).length;
+    const eventDateObj = new Date(event.date + 'T00:00:00');
+    const now = new Date();
+    const daysUntil = Math.ceil((eventDateObj - now) / (1000 * 60 * 60 * 24));
+    const eventTimingLabel = daysUntil >= 0 ? `${daysUntil} day(s) until event` : `${Math.abs(daysUntil)} day(s) ago`;
 
     const sameDayEvents = allEvents.filter(e =>
         e.id !== event.id &&
@@ -342,16 +346,37 @@ renderEventAnalytics(event) {
         e.time === event.time
     );
 
+    const sameWeekEvents = allEvents.filter(e =>
+        e.id !== event.id &&
+        this.isThisWeek(e.date)
+    );
+
+    const sameMonthEvents = allEvents.filter(e =>
+        e.id !== event.id &&
+        e.date.slice(0, 7) === event.date.slice(0, 7)
+    );
+
     const sameCategoryEvents = allEvents.filter(e =>
         e.id !== event.id &&
         e.category === event.category
     );
+
+    const overallAverage = allEvents.length
+        ? Math.round(allEvents.reduce((sum, e) => sum + (e.attendeeCount || 0), 0) / allEvents.length)
+        : 0;
 
     const categoryAverage = sameCategoryEvents.length
         ? Math.round(
             sameCategoryEvents.reduce((sum, e) => sum + (e.attendeeCount || 0), 0) / sameCategoryEvents.length
         )
         : 0;
+
+    const attendanceDelta = attendeeCount - overallAverage;
+    const attendanceLabel = attendanceDelta >= 0 ? `+${attendanceDelta}` : `${attendanceDelta}`;
+
+    const topCategoryEvents = sameCategoryEvents
+        .sort((a, b) => (b.attendeeCount || 0) - (a.attendeeCount || 0))
+        .slice(0, 3);
 
     container.innerHTML = `
         <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-bottom:1rem">
@@ -371,8 +396,8 @@ renderEventAnalytics(event) {
             </div>
 
             <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Category Avg RSVP</h4>
-                <p style="margin:0;font-size:1.6rem;font-weight:700;color:#F59E0B">${categoryAverage}</p>
+                <h4 style="margin:0 0 0.5rem 0">Event Timing</h4>
+                <p style="margin:0;font-weight:700;color:#6366F1">${eventTimingLabel}</p>
             </div>
         </div>
 
@@ -393,6 +418,11 @@ renderEventAnalytics(event) {
             <p style="margin:0 0 0.5rem 0">
                 <strong>Other events at the same time:</strong> ${sameTimeEvents.length}
             </p>
+            <p style="margin:0 0 0.5rem 0">
+                <strong>Other events this week:</strong> ${sameWeekEvents.length}
+            </p>
+            <p style="margin:0 0 0.5rem 0">
+                <strong>Other events this month:</strong> ${sameMonthEvents.length}</p>
 
             ${
                 sameDayEvents.length
@@ -409,17 +439,19 @@ renderEventAnalytics(event) {
             }
         </div>
 
-        <div class="card" style="margin:0">
+        <div class="card" style="margin-bottom:1rem">
             <h4 style="margin:0 0 1rem 0">Category Stats</h4>
-            <p style="margin:0 0 0.5rem 0">
-                <strong>Category:</strong> ${event.category}
-            </p>
-            <p style="margin:0 0 0.5rem 0">
-                <strong>Other events in this category:</strong> ${sameCategoryEvents.length}
-            </p>
-            <p style="margin:0">
-                <strong>Average RSVP count:</strong> ${categoryAverage}
-            </p>
+            <p style="margin:0 0 0.5rem 0"><strong>Category:</strong> ${event.category}</p>
+            <p style="margin:0 0 0.5rem 0"><strong>Other events in this category:</strong> ${sameCategoryEvents.length}</p>
+            <p style="margin:0 0 0.5rem 0"><strong>Average RSVP count:</strong> ${categoryAverage}</p>
+            <p style="margin:0 0 0.5rem 0"><strong>Overall average attendees:</strong> ${overallAverage}</p>
+            <p style="margin:0"><strong>Relative attendance:</strong> ${attendanceLabel}</p>
+            <div style="margin-top:0.75rem">
+                <strong>Top same-category events:</strong>
+                ${topCategoryEvents.length ? topCategoryEvents.map(e => `
+                    <p style="margin:0.35rem 0;color:#6B7280">${e.title} — ${e.attendeeCount || 0} attendees</p>
+                `).join('') : '<p style="margin:0.35rem 0;color:#6B7280">No other events in category.</p>'}
+            </div>
         </div>
     `;
 },
@@ -453,13 +485,34 @@ renderAnalyticsModal() {
     const pendingEvents = events.filter(e => e.status === 'pending').length;
     const rejectedEvents = events.filter(e => e.status === 'rejected').length;
     const totalAttendees = events.reduce((sum, e) => sum + (e.attendeeCount || 0), 0);
+    const avgAttendees = totalEvents ? Math.round(totalAttendees / totalEvents) : 0;
+    const approvalRate = totalEvents ? Math.round((approvedEvents / totalEvents) * 100) : 0;
+    const upcomingEvents = events.filter(e => new Date(e.date + 'T00:00:00') >= new Date()).length;
+    const pastEvents = totalEvents - upcomingEvents;
+
+    const categoryCounts = events.reduce((counts, e) => {
+        counts[e.category] = (counts[e.category] || 0) + 1;
+        return counts;
+    }, {});
+
+    const busiestCategory = Object.entries(categoryCounts)
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+
+    const monthCounts = events.reduce((counts, e) => {
+        const month = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Unknown';
+        counts[month] = (counts[month] || 0) + 1;
+        return counts;
+    }, {});
+
+    const busiestMonth = Object.entries(monthCounts)
+        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
 
     const topEvent = events.length
         ? [...events].sort((a, b) => (b.attendeeCount || 0) - (a.attendeeCount || 0))[0]
         : null;
 
     container.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-bottom:1.5rem">
+        <div style="display:grid;grid-template-columns:repeat(2, minmax(150px, 1fr));gap:1rem;margin-bottom:1.5rem">
             <div class="card" style="margin:0">
                 <h4 style="margin:0 0 0.5rem 0">Total Events</h4>
                 <p style="font-size:1.8rem;font-weight:700;margin:0;color:#4F46E5">${totalEvents}</p>
@@ -471,22 +524,39 @@ renderAnalyticsModal() {
             </div>
 
             <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Approved</h4>
-                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#059669">${approvedEvents}</p>
+                <h4 style="margin:0 0 0.5rem 0">Average Attendance</h4>
+                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#2563EB">${avgAttendees}</p>
             </div>
 
             <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Pending</h4>
-                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#D97706">${pendingEvents}</p>
+                <h4 style="margin:0 0 0.5rem 0">Approval Rate</h4>
+                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#0EA5E9">${approvalRate}%</p>
             </div>
         </div>
 
-        <div class="card" style="margin:0">
-            <h4 style="margin:0 0 1rem 0">Rejected</h4>
-            <p style="font-size:1.25rem;font-weight:700;margin:0;color:#DC2626">${rejectedEvents}</p>
+        <div style="display:grid;grid-template-columns:repeat(3, minmax(140px, 1fr));gap:1rem;margin-bottom:1.5rem">
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Upcoming Events</h4>
+                <p style="font-size:1.6rem;font-weight:700;margin:0;color:#0EA5E9">${upcomingEvents}</p>
+            </div>
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Past Events</h4>
+                <p style="font-size:1.6rem;font-weight:700;margin:0;color:#6B7280">${pastEvents}</p>
+            </div>
+            <div class="card" style="margin:0">
+                <h4 style="margin:0 0 0.5rem 0">Busiest Month</h4>
+                <p style="font-size:1.3rem;font-weight:700;margin:0;color:#4B5563">${busiestMonth}</p>
+            </div>
         </div>
 
-        <div class="card" style="margin-top:1rem">
+        <div class="card" style="margin-bottom:1rem">
+            <h4 style="margin:0 0 1rem 0">Category Insight</h4>
+            <p style="margin:0 0 0.5rem 0"><strong>Busiest category:</strong> ${busiestCategory}</p>
+            <p style="margin:0 0 0.5rem 0"><strong>Events in category:</strong> ${categoryCounts[busiestCategory] || 0}</p>
+            <p style="margin:0 0 0.5rem 0"><strong>Total months with events:</strong> ${Object.keys(monthCounts).length}</p>
+        </div>
+
+        <div class="card" style="margin:0">
             <h4 style="margin:0 0 1rem 0">Top Event</h4>
             ${
                 topEvent
