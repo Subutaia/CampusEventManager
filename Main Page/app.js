@@ -190,6 +190,9 @@ document.getElementById('aiPrompt').value = '';
         })
         .then(res => {
             if (!res.ok) {
+                if (res.status === 401) {
+                    this.handleInvalidToken();
+                }
                 throw new Error(`HTTP ${res.status} ${res.statusText}`);
             }
             return res.json();
@@ -216,6 +219,14 @@ document.getElementById('aiPrompt').value = '';
         });
     },
 
+    handleInvalidToken() {
+        CampusData.logout();
+        this.currentUser = null;
+        this.renderUI();
+        this.showLanding();
+        console.warn('Session cleared due to invalid or expired token. Please log in again.');
+    },
+
     // Fetch organizer's events from API
     fetchOrganizerEvents() {
         const token = localStorage.getItem('cem_token');
@@ -225,11 +236,20 @@ document.getElementById('aiPrompt').value = '';
 
         return fetch(`${API_BASE_URL}/api/events/organizer/mine`, {
             method: 'GET',
+            mode: 'cors',
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                if (res.status === 401) {
+                    this.handleInvalidToken();
+                }
+                throw new Error(`HTTP ${res.status} ${res.statusText}`);
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success && data.data && Array.isArray(data.data)) {
                 return data.data;
@@ -251,11 +271,20 @@ document.getElementById('aiPrompt').value = '';
 
         return fetch(`${API_BASE_URL}/api/rsvps/user/mine`, {
             method: 'GET',
+            mode: 'cors',
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                if (res.status === 401) {
+                    this.handleInvalidToken();
+                }
+                throw new Error(`HTTP ${res.status} ${res.statusText}`);
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success && data.data && Array.isArray(data.data)) {
                 return data.data;
