@@ -148,22 +148,28 @@ app.post('/api/debug/add-users', async (c) => {
 
 // Initialize CORS
 app.use('*', cors({
-  origin: [
-    'https://campuseventmanager.com',
-    'https://www.campuseventmanager.com',
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://localhost:5500',
-    'http://localhost:5501',
-    'http://127.0.0.1:5500',
-    'http://127.0.0.1:5501',
-    'https://campuseventmanager.pages.dev'
-  ],
-  credentials: true,
+  origin: '*',
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
   maxAge: 86400
 }));
+
+// Ensure CORS headers are present on every response
+app.use('*', async (c, next) => {
+  await next();
+  c.header('Access-Control-Allow-Origin', '*');
+  c.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
+  c.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+});
+
+// Explicit preflight handling for all routes
+app.options('*', (c) => {
+  return c.text('ok', 204, {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+  });
+});
 // Initialize database and SendGrid once at startup/lazily per request
 app.use('/api/auth/*', async (c, next) => {
   try {
