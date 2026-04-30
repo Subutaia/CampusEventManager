@@ -512,60 +512,58 @@ renderAnalyticsModal() {
         : null;
 
     container.innerHTML = `
-        <div style="display:grid;grid-template-columns:repeat(2, minmax(150px, 1fr));gap:1rem;margin-bottom:1.5rem">
-            <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Total Events</h4>
-                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#4F46E5">${totalEvents}</p>
+        <div class="analytics-grid" style="margin-bottom:1.5rem;">
+            <div class="analytics-stat">
+                <h4>Total Events</h4>
+                <p>${totalEvents}</p>
             </div>
-
-            <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Total Attendees</h4>
-                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#10B981">${totalAttendees}</p>
+            <div class="analytics-stat">
+                <h4>Total Attendees</h4>
+                <p>${totalAttendees}</p>
             </div>
-
-            <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Average Attendance</h4>
-                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#2563EB">${avgAttendees}</p>
+            <div class="analytics-stat">
+                <h4>Average Attendance</h4>
+                <p>${avgAttendees}</p>
             </div>
-
-            <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Approval Rate</h4>
-                <p style="font-size:1.8rem;font-weight:700;margin:0;color:#0EA5E9">${approvalRate}%</p>
+            <div class="analytics-stat">
+                <h4>Approval Rate</h4>
+                <p>${approvalRate}%</p>
             </div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:repeat(3, minmax(140px, 1fr));gap:1rem;margin-bottom:1.5rem">
-            <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Upcoming Events</h4>
-                <p style="font-size:1.6rem;font-weight:700;margin:0;color:#0EA5E9">${upcomingEvents}</p>
+            <div class="analytics-stat">
+                <h4>Upcoming Events</h4>
+                <p>${upcomingEvents}</p>
             </div>
-            <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Past Events</h4>
-                <p style="font-size:1.6rem;font-weight:700;margin:0;color:#6B7280">${pastEvents}</p>
+            <div class="analytics-stat">
+                <h4>Past Events</h4>
+                <p>${pastEvents}</p>
             </div>
-            <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Busiest Month</h4>
-                <p style="font-size:1.3rem;font-weight:700;margin:0;color:#4B5563">${busiestMonth}</p>
+            <div class="analytics-stat" style="grid-column: span 2;">
+                <h4>Busiest Month</h4>
+                <p style="font-size:1.5rem;color:#475569;">${busiestMonth}</p>
             </div>
         </div>
 
-        <div class="card" style="margin-bottom:1rem">
-            <h4 style="margin:0 0 1rem 0">Category Insight</h4>
-            <p style="margin:0 0 0.5rem 0"><strong>Busiest category:</strong> ${busiestCategory}</p>
-            <p style="margin:0 0 0.5rem 0"><strong>Events in category:</strong> ${categoryCounts[busiestCategory] || 0}</p>
-            <p style="margin:0 0 0.5rem 0"><strong>Total months with events:</strong> ${Object.keys(monthCounts).length}</p>
+        <div class="analytics-section">
+            <h3>Category Insight</h3>
+            <div class="analytics-list">
+                <div class="analytics-list-item"><span><strong>Busiest category</strong></span><span>${busiestCategory}</span></div>
+                <div class="analytics-list-item"><span><strong>Events in category</strong></span><span>${categoryCounts[busiestCategory] || 0}</span></div>
+                <div class="analytics-list-item"><span><strong>Total months with events</strong></span><span>${Object.keys(monthCounts).length}</span></div>
+            </div>
         </div>
 
-        <div class="card" style="margin:0">
-            <h4 style="margin:0 0 1rem 0">Top Event</h4>
+        <div class="analytics-section">
+            <h3>Top Event</h3>
             ${
                 topEvent
                     ? `
-                        <p style="margin:0 0 0.5rem 0;font-weight:700">${topEvent.title}</p>
-                        <p style="margin:0;color:#6B7280">${topEvent.attendeeCount || 0} attendees</p>
-                        <p style="margin:0.5rem 0 0 0;color:#6B7280">${CampusData.formatDate(topEvent.date)} • ${topEvent.location}</p>
+                        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                            <p style="margin:0;font-size:1.25rem;font-weight:700;color:#111827">${topEvent.title}</p>
+                            <p style="margin:0;color:#475569">${topEvent.attendeeCount || 0} attendees</p>
+                            <p style="margin:0;color:#6B7280">${CampusData.formatDate(topEvent.date)} • ${topEvent.location}</p>
+                        </div>
                     `
-                    : '<p style="margin:0;color:#6B7280">No events yet.</p>'
+                    : `<p style="margin:0;color:#475569">No events yet.</p>`
             }
         </div>
     `;

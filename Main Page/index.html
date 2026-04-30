@@ -23,6 +23,70 @@
         .modal-tab-panes { display: none; }
         .modal-tab-panes.active { display: block; }
 
+        /* Analytics Modal */
+        .analytics-modal .modal-content {
+            max-width: 920px;
+            width: 96%;
+            padding: 2.5rem;
+            background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%);
+        }
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+        .analytics-stat {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+        .analytics-stat h4 {
+            margin: 0 0 0.75rem 0;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #374151;
+            letter-spacing: 0.01em;
+        }
+        .analytics-stat p {
+            margin: 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #111827;
+        }
+        .analytics-section {
+            background: white;
+            border: 1px solid #E5E7EB;
+            border-radius: 18px;
+            padding: 1.75rem;
+            box-shadow: 0 10px 30px rgba(15,23,42,0.06);
+            margin-bottom: 1rem;
+        }
+        .analytics-section h3 {
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+            color: #111827;
+        }
+        .analytics-list {
+            display: grid;
+            gap: 0.75rem;
+        }
+        .analytics-list-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.95rem 1rem;
+            background: #F8FAFC;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            color: #475569;
+            font-size: 0.96rem;
+        }
+        .analytics-list-item strong {
+            color: #111827;
+        }
+
         /* Dashboard Container */
         .dashboard-container { display: none; min-height: 100vh; background: #F9FAFB; }
         .dashboard-container.active { display: block; }
@@ -355,15 +419,15 @@
     </nav>
     
 <!-- Analytics Modal -->
-    <div class="modal-overlay" id="eventAnalyticsModal">
+    <div class="modal-overlay analytics-modal" id="eventAnalyticsModal">
     <div class="modal-content">
         <button class="modal-close" onclick="AppState.closeEventAnalytics()">
             <i class="fas fa-times"></i>
         </button>
 
-        <div style="margin-bottom:1.5rem">
-            <h2 style="margin:0 0 0.5rem 0">Event Analytics</h2>
-            <p style="margin:0;color:#6B7280">Performance details for this event</p>
+        <div style="margin-bottom:1.5rem;">
+            <h2 style="margin:0 0 0.5rem 0; font-size:2rem; letter-spacing:-0.03em;">Event Analytics</h2>
+            <p style="margin:0;color:#475569; font-size:1rem; max-width:640px;">Performance and comparison insights for this event, designed to help organizers spot trends and optimize attendance.</p>
         </div>
 
         <div id="eventAnalyticsContent"></div>
