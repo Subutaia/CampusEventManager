@@ -175,17 +175,70 @@ document.getElementById('aiPrompt').value = '';
         .then(res => res.json())
         .then(data => {
             if (data.success && data.data && Array.isArray(data.data)) {
-                const rsvps = data.data.map(r => ({
+                // data.data contains the events that user RSVP'd to
+                const events = data.data;
+                const rsvps = events.map(e => ({
                     userId: this.currentUser.id,
-                    eventId: r.eventId?._id || r.eventId,
-                    timestamp: r.createdAt || new Date().toISOString()
+                    eventId: e._id || e.id,
+                    timestamp: e.createdAt || new Date().toISOString()
                 }));
                 CampusData.saveRSVPs(rsvps);
             }
         })
         .catch(err => {
             console.warn('Failed to sync RSVPs from API:', err);
-            // Silently fail - use cached localStorage data
+        });
+    },
+
+    // Fetch organizer's events from API
+    fetchOrganizerEvents() {
+        const token = localStorage.getItem('cem_token');
+        if (!token) {
+            return Promise.resolve([]);
+        }
+
+        return fetch(`${API_BASE_URL}/api/events/organizer/mine`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data && Array.isArray(data.data)) {
+                return data.data;
+            }
+            return [];
+        })
+        .catch(err => {
+            console.warn('Failed to fetch organizer events:', err);
+            return [];
+        });
+    },
+
+    // Fetch user's RSVP'd events from API
+    fetchUserRSVPs() {
+        const token = localStorage.getItem('cem_token');
+        if (!token) {
+            return Promise.resolve([]);
+        }
+
+        return fetch(`${API_BASE_URL}/api/rsvps/user/mine`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data && Array.isArray(data.data)) {
+                return data.data;
+            }
+            return [];
+        })
+        .catch(err => {
+            console.warn('Failed to fetch user RSVPs:', err);
+            return [];
         });
     },
 
@@ -857,56 +910,91 @@ renderAnalyticsModal() {
         return;
     }
 
-    const events = CampusData.getEventsByOrganizer(this.currentUser.id);
+    // Fetch events from API instead of localStorage
+    this.fetchOrganizerEvents().then(apiEvents => {
+        // Also get localStorage events as fallback
+        const localEvents = CampusData.getEventsByOrganizer(this.currentUser.id) || [];
+        
+        // Merge API and local events - API takes precedence
+        const eventMap = new Map();
+        
+        // Add API events
+        apiEvents.forEach(e => {
+            eventMap.set(e._id || e.id, {
+                id: e._id || e.id,
+                title: e.title,
+                description: e.description,
+                date: e.date,
+                time: e.time,
+                location: e.location,
+                category: e.category,
+                organizerId: e.organizerId?._id || e.organizerId,
+                organizerName: e.organizerName,
+                status: e.status,
+                attendeeCount: e.attendeeCount,
+                tags: e.tags || [],
+                createdAt: e.createdAt
+            });
+        });
+        
+        // Add any local events not in API
+        localEvents.forEach(e => {
+            if (!eventMap.has(e.id)) {
+                eventMap.set(e.id, e);
+            }
+        });
+        
+        const events = Array.from(eventMap.values());
 
-    if (!events.length) {
-        container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-plus"></i><p>You have not created any events yet.</p></div>';
-        return;
-    }
+        if (!events.length) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-plus"></i><p>You have not created any events yet.</p></div>';
+            return;
+        }
 
-    container.innerHTML = events.map(ev => `
-        <div class="card">
-            <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.75rem;gap:1rem">
-                <div style="flex:1">
-                    <h4 style="margin:0 0 0.5rem 0">${ev.title}</h4>
-                    <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280">
-                        <span><i class="far fa-calendar"></i> ${CampusData.formatDate(ev.date)}</span>
-                        <span><i class="far fa-clock"></i> ${CampusData.formatTime(ev.time)}</span>
-                        <span><i class="fas fa-map-marker-alt"></i> ${ev.location}</span>
+        container.innerHTML = events.map(ev => `
+            <div class="card">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.75rem;gap:1rem">
+                    <div style="flex:1">
+                        <h4 style="margin:0 0 0.5rem 0">${ev.title}</h4>
+                        <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280">
+                            <span><i class="far fa-calendar"></i> ${CampusData.formatDate(ev.date)}</span>
+                            <span><i class="far fa-clock"></i> ${CampusData.formatTime(ev.time)}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${ev.location}</span>
+                        </div>
                     </div>
+
+                    <span class="tag" style="
+                        background:${ev.status === 'approved' ? '#D1FAE5' : ev.status === 'pending' ? '#FEF3C7' : '#FEE2E2'};
+                        color:${ev.status === 'approved' ? '#065F46' : ev.status === 'pending' ? '#92400E' : '#991B1B'};
+                        font-weight:600;
+                    ">
+                        ${(ev.status || 'pending').charAt(0).toUpperCase() + (ev.status || 'pending').slice(1)}
+                    </span>
                 </div>
 
-                <span class="tag" style="
-                    background:${ev.status === 'approved' ? '#D1FAE5' : ev.status === 'pending' ? '#FEF3C7' : '#FEE2E2'};
-                    color:${ev.status === 'approved' ? '#065F46' : ev.status === 'pending' ? '#92400E' : '#991B1B'};
-                    font-weight:600;
-                ">
-                    ${(ev.status || 'pending').charAt(0).toUpperCase() + (ev.status || 'pending').slice(1)}
-                </span>
+                <p style="margin:0.75rem 0;color:#4B5563">${ev.description || 'No description provided.'}</p>
+
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280;margin-bottom:0.75rem">
+                    <span><i class="fas fa-users"></i> ${ev.attendeeCount || 0} attending</span>
+                    <span><i class="fas fa-folder"></i> ${ev.category || 'Uncategorized'}</span>
+                </div>
+
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
+                    ${(ev.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                </div>
+
+                <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                    <button class="btn btn-outline" onclick="AppState.openEventAnalytics('${ev.id}')" style="padding:0.55rem 1rem">
+                        <i class="fas fa-chart-bar"></i> Analytics
+                    </button>
+
+                    <button class="btn btn-danger" onclick="AppState.deleteMyEvent('${ev.id}')" style="padding:0.55rem 1rem">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
             </div>
-
-            <p style="margin:0.75rem 0;color:#4B5563">${ev.description || 'No description provided.'}</p>
-
-            <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280;margin-bottom:0.75rem">
-                <span><i class="fas fa-users"></i> ${ev.attendeeCount || 0} attending</span>
-                <span><i class="fas fa-folder"></i> ${ev.category || 'Uncategorized'}</span>
-            </div>
-
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
-                ${(ev.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
-            </div>
-
-            <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
-                <button class="btn btn-outline" onclick="AppState.openEventAnalytics('${ev.id}')" style="padding:0.55rem 1rem">
-                    <i class="fas fa-chart-bar"></i> Analytics
-                </button>
-
-                <button class="btn btn-danger" onclick="AppState.deleteMyEvent('${ev.id}')" style="padding:0.55rem 1rem">
-                    <i class="fas fa-trash"></i> Delete
-                </button>
-            </div>
-        </div>
-    `).join('');
+        `).join('');
+    });
 },
     // Event rendering - Landing page
     renderLandingEvents() {
@@ -1154,17 +1242,42 @@ renderFeaturedEvents() {
     },
 
     renderMyRSVPs() {
-        const rsvps = CampusData.getRSVPsByUser(this.currentUser.id);
         const container = document.getElementById('dashRsvpsContainer');
 
-        if (rsvps.length === 0) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-check"></i><p>You haven\'t RSVP\'d to any events yet.</p></div>';
-            return;
-        }
+        // Fetch RSVP'd events from API
+        this.fetchUserRSVPs().then(rsvpEvents => {
+            // Also try to get from localStorage as fallback
+            const localRsvps = CampusData.getRSVPsByUser(this.currentUser.id) || [];
+            let events = [];
 
-        container.innerHTML = rsvps.map(rsvp => {
-            const event = CampusData.getEventById(rsvp.eventId);
-            return !event ? '' : `
+            if (rsvpEvents && rsvpEvents.length > 0) {
+                // API returned events
+                events = rsvpEvents.map(e => ({
+                    id: e._id || e.id,
+                    title: e.title,
+                    description: e.description,
+                    date: e.date,
+                    time: e.time,
+                    location: e.location,
+                    category: e.category,
+                    organizerId: e.organizerId?._id || e.organizerId,
+                    organizerName: e.organizerName,
+                    status: e.status,
+                    attendeeCount: e.attendeeCount,
+                    tags: e.tags || [],
+                    createdAt: e.createdAt
+                }));
+            } else if (localRsvps.length > 0) {
+                // Fallback to localStorage
+                events = localRsvps.map(rsvp => CampusData.getEventById(rsvp.eventId)).filter(e => e);
+            }
+
+            if (events.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-check"></i><p>You haven\'t RSVP\'d to any events yet.</p></div>';
+                return;
+            }
+
+            container.innerHTML = events.map(event => `
                 <div class="card">
                     <div style="display:flex;justify-content:space-between;align-items:start">
                         <div style="flex:1">
@@ -1176,8 +1289,9 @@ renderFeaturedEvents() {
                         </div>
                         <button class="btn btn-danger" onclick="AppState.toggleRSVP('${event.id}')" style="padding:0.5rem 1rem;background:#EF4444;color:white;border:none;border-radius:6px;cursor:pointer">Remove</button>
                     </div>
-                </div>`;
-        }).join('');
+                </div>`
+            ).join('');
+        });
     },
 
     renderNotifications() {
@@ -1278,12 +1392,28 @@ renderFeaturedEvents() {
                 return;
             }
 
-            // Also save to localStorage as fallback
-            CampusData.addEvent({
-                title, description, date, time, location, category, tags,
+            // Save the API response to localStorage with the MongoDB ID
+            const apiEvent = data.data;
+            const eventToSave = {
+                id: apiEvent._id || apiEvent.id,
+                title: apiEvent.title,
+                description: apiEvent.description,
+                date: apiEvent.date,
+                time: apiEvent.time,
+                location: apiEvent.location,
+                category: apiEvent.category,
                 organizerId: this.currentUser.id,
-                organizerName: this.currentUser.username
-            });
+                organizerName: this.currentUser.username,
+                status: apiEvent.status || 'pending',
+                attendeeCount: apiEvent.attendeeCount || 0,
+                tags: apiEvent.tags || [],
+                createdAt: apiEvent.createdAt || new Date().toISOString()
+            };
+
+            // Save to localStorage
+            const events = CampusData.getEvents();
+            events.push(eventToSave);
+            CampusData.saveEvents(events);
 
             // Clear form
             document.getElementById('eventForm').reset();
@@ -1297,7 +1427,7 @@ renderFeaturedEvents() {
         })
         .catch(err => {
             console.error('Event creation error:', err);
-            // Fallback to localStorage
+            // Fallback to localStorage only
             const event = CampusData.addEvent({
                 title, description, date, time, location, category, tags,
                 organizerId: this.currentUser.id,

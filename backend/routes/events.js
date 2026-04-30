@@ -91,6 +91,22 @@ router.get('/', async (req, res) => {
 });
 
 /**
+ * Get organizer's events
+ * GET /api/events/organizer/mine
+ */
+router.get('/organizer/mine', verifyToken, async (req, res) => {
+  try {
+    const events = await Event.find({ organizerId: req.user.id })
+      .populate('organizerId', 'username')
+      .sort('-createdAt');
+
+    successResponse(res, events, 'Organizer events retrieved successfully');
+  } catch (error) {
+    errorResponse(res, error);
+  }
+});
+
+/**
  * Get single event
  * GET /api/events/:id
  */
