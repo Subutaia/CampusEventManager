@@ -337,87 +337,39 @@ renderAnalyticsModal() {
                         <span><i class="fas fa-map-marker-alt"></i> ${ev.location}</span>
                     </div>
                 </div>
+
                 <span class="tag" style="
                     background:${ev.status === 'approved' ? '#D1FAE5' : ev.status === 'pending' ? '#FEF3C7' : '#FEE2E2'};
                     color:${ev.status === 'approved' ? '#065F46' : ev.status === 'pending' ? '#92400E' : '#991B1B'};
                     font-weight:600;
                 ">
-                    ${ev.status.charAt(0).toUpperCase() + ev.status.slice(1)}
+                    ${(ev.status || 'pending').charAt(0).toUpperCase() + (ev.status || 'pending').slice(1)}
                 </span>
             </div>
 
-            <p style="margin:0.75rem 0;color:#4B5563">${ev.description}</p>
+            <p style="margin:0.75rem 0;color:#4B5563">${ev.description || 'No description provided.'}</p>
 
             <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280;margin-bottom:0.75rem">
                 <span><i class="fas fa-users"></i> ${ev.attendeeCount || 0} attending</span>
-                <span><i class="fas fa-folder"></i> ${ev.category}</span>
+                <span><i class="fas fa-folder"></i> ${ev.category || 'Uncategorized'}</span>
             </div>
 
-            <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
                 ${(ev.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
+            </div>
+
+            <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+                <button class="btn btn-outline" onclick="AppState.openEventAnalytics('${ev.id}')" style="padding:0.55rem 1rem">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </button>
+
+                <button class="btn btn-danger" onclick="AppState.deleteMyEvent('${ev.id}')" style="padding:0.55rem 1rem">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
             </div>
         </div>
     `).join('');
 },
-     
-
-    renderMyEvents() {
-        const container = document.getElementById('dashMyEventsContainer');
-
-        if (!this.currentUser || this.currentUser.role !== 'organizer') {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-lock"></i><p>Only organizers can view created events.</p></div>';
-            return;
-        }
-
-        const events = CampusData.getEventsByOrganizer(this.currentUser.id);
-
-        if (!events.length) {
-            container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-plus"></i><p>You have not created any events yet.</p></div>';
-            return;
-        }
-
-        container.innerHTML = events.map(ev => `
-            <div class="card">
-                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.75rem;gap:1rem">
-                    <div style="flex:1">
-                        <h4 style="margin:0 0 0.5rem 0">${ev.title}</h4>
-                        <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280">
-                            <span><i class="far fa-calendar"></i> ${CampusData.formatDate(ev.date)}</span>
-                            <span><i class="far fa-clock"></i> ${CampusData.formatTime(ev.time)}</span>
-                            <span><i class="fas fa-map-marker-alt"></i> ${ev.location}</span>
-                        </div>
-                    </div>
-                    <span class="tag" style="
-                        background:${ev.status === 'approved' ? '#D1FAE5' : ev.status === 'pending' ? '#FEF3C7' : '#FEE2E2'};
-                        color:${ev.status === 'approved' ? '#065F46' : ev.status === 'pending' ? '#92400E' : '#991B1B'};
-                        font-weight:600;
-                    ">
-                        ${ev.status.charAt(0).toUpperCase() + ev.status.slice(1)}
-                    </span>
-                </div>
-
-                <p style="margin:0.75rem 0;color:#4B5563">${ev.description}</p>
-
-                <div style="display:flex;gap:1rem;flex-wrap:wrap;font-size:0.9rem;color:#6B7280;margin-bottom:0.75rem">
-                    <span><i class="fas fa-users"></i> ${ev.attendeeCount || 0} attending</span>
-                    <span><i class="fas fa-folder"></i> ${ev.category}</span>
-                </div>
-
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:1rem">
-                    ${(ev.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
-                </div>
-
-                <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
-                    <button class="btn btn-outline" onclick="AppState.openEventAnalytics('${ev.id}')" style="padding:0.55rem 1rem">
-                        <i class="fas fa-chart-bar"></i> Analytics
-                    </button>
-                    <button class="btn btn-danger" onclick="AppState.deleteMyEvent('${ev.id}')" style="padding:0.55rem 1rem">
-                        <i class="fas fa-trash"></i> Delete
-                    </button>
-                </div>
-            </div>  
-        `).join('');
-    },
     // Setup all event listeners
     setupEventListeners() {
 
