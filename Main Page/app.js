@@ -191,7 +191,8 @@ document.getElementById('aiPrompt').value = '';
         .then(res => {
             if (!res.ok) {
                 if (res.status === 401) {
-                    this.handleInvalidToken();
+                    console.warn('RSVP sync received 401; preserving current session and using local RSVP cache.');
+                    return { success: false, data: [] };
                 }
                 throw new Error(`HTTP ${res.status} ${res.statusText}`);
             }
@@ -210,6 +211,9 @@ document.getElementById('aiPrompt').value = '';
                 if (this.currentDashTab === 'my-rsvps') {
                     this.renderMyRSVPs();
                 }
+            } else if (data && data.success === false) {
+                // Use local cache when auth validation fails during background sync
+                console.warn('RSVP sync skipped due to auth failure; using local data.');
             } else {
                 console.warn('RSVP sync returned unexpected data:', data);
             }
@@ -244,7 +248,8 @@ document.getElementById('aiPrompt').value = '';
         .then(res => {
             if (!res.ok) {
                 if (res.status === 401) {
-                    this.handleInvalidToken();
+                    console.warn('Organizer event fetch received 401; preserving session and using local events.');
+                    return { success: false, data: [] };
                 }
                 throw new Error(`HTTP ${res.status} ${res.statusText}`);
             }
@@ -279,7 +284,8 @@ document.getElementById('aiPrompt').value = '';
         .then(res => {
             if (!res.ok) {
                 if (res.status === 401) {
-                    this.handleInvalidToken();
+                    console.warn('User RSVP fetch received 401; preserving session and falling back to local data.');
+                    return { success: false, data: [] };
                 }
                 throw new Error(`HTTP ${res.status} ${res.statusText}`);
             }
