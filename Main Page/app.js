@@ -100,12 +100,93 @@ document.getElementById('aiPrompt').value = '';
         this.setupEventListeners();
         this.renderUI();
         
+        // Sync events from API
+        this.syncEventsFromAPI();
+        
         if (this.currentUser) {
             this.showDashboard();
             this.renderDashboard();
         } else {
             this.showLanding();
         }
+    },
+
+    // Sync approved events from API to localStorage
+    syncEventsFromAPI() {
+        fetch(`${API_BASE_URL}/api/events`, {
+            method: 'GET'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data && Array.isArray(data.data)) {
+                // Get current localStorage events
+                const currentEvents = CampusData.getEvents();
+                
+                // Add API events to localStorage (merge approach - API events override)
+                const apiEvents = data.data.map(e => ({
+                    id: e._id || e.id,
+                    title: e.title,
+                    description: e.description,
+                    date: e.date,
+                    time: e.time,
+                    location: e.location,
+                    category: e.category,
+                    organizerId: e.organizerId?._id || e.organizerId,
+                    organizerName: e.organizerName,
+                    status: e.status,
+                    attendeeCount: e.attendeeCount,
+                    tags: e.tags || [],
+                    createdAt: e.createdAt
+                }));
+                
+                // Merge: keep local events that aren't in API, add API events
+                const mergedEvents = [...apiEvents];
+                currentEvents.forEach(localEvent => {
+                    if (!apiEvents.find(e => e.id === localEvent.id)) {
+                        mergedEvents.push(localEvent);
+                    }
+                });
+                
+                CampusData.saveEvents(mergedEvents);
+            }
+        })
+        .catch(err => {
+            console.warn('Failed to sync events from API:', err);
+            // Silently fail - use cached localStorage data
+        });
+
+        // Also sync RSVPs if user is logged in
+        if (this.currentUser) {
+            this.syncRSVPsFromAPI();
+        }
+    },
+
+    // Sync RSVPs from API to localStorage
+    syncRSVPsFromAPI() {
+        const token = localStorage.getItem('cem_token');
+        if (!token) return;
+
+        fetch(`${API_BASE_URL}/api/rsvps/user/mine`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data && Array.isArray(data.data)) {
+                const rsvps = data.data.map(r => ({
+                    userId: this.currentUser.id,
+                    eventId: r.eventId?._id || r.eventId,
+                    timestamp: r.createdAt || new Date().toISOString()
+                }));
+                CampusData.saveRSVPs(rsvps);
+            }
+        })
+        .catch(err => {
+            console.warn('Failed to sync RSVPs from API:', err);
+            // Silently fail - use cached localStorage data
+        });
     },
 
     openEventAnalytics(eventId) {
@@ -393,16 +474,51 @@ renderAnalyticsModal() {
         return;
     }
 
-    CampusData.deleteEvent(eventId);
+    const token = localStorage.getItem('cem_token');
+    if (!token) {
+        alert('You must be logged in to delete an event.');
+        return;
+    }
 
-    // live refresh everywhere
-    this.renderMyEvents();
-    this.renderBrowseEvents();
-    this.renderLandingEvents();
-    this.renderFeaturedEvents();
-    this.renderCalendarSnippet();
+    // Call API to delete event
+    fetch(`${API_BASE_URL}/api/events/${eventId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) {
+            console.error('Failed to delete event:', data.error);
+            return;
+        }
+        // Also delete from localStorage as fallback
+        CampusData.deleteEvent(eventId);
 
-    alert("Event deleted successfully.");
+        // live refresh everywhere
+        this.renderMyEvents();
+        this.renderBrowseEvents();
+        this.renderLandingEvents();
+        this.renderFeaturedEvents();
+        this.renderCalendarSnippet();
+
+        alert("Event deleted successfully.");
+    })
+    .catch(err => {
+        console.error('Event deletion error:', err);
+        // Fallback to localStorage
+        CampusData.deleteEvent(eventId);
+
+        // live refresh everywhere
+        this.renderMyEvents();
+        this.renderBrowseEvents();
+        this.renderLandingEvents();
+        this.renderFeaturedEvents();
+        this.renderCalendarSnippet();
+
+        alert("Event deleted successfully.");
+    });
 },
     // Modal management
     openModal() {
@@ -1131,48 +1247,198 @@ renderFeaturedEvents() {
         const category = document.getElementById('evCategory').value;
         const tags = document.getElementById('evTags').value.split(',').map(t => t.trim()).filter(t => t);
         const errorEl = document.getElementById('createError');
-        alert('Event submitted for approval! Admins will review it shortly.');
-        this.switchDashTab('my-events');
 
         if (!title || !description || !date || !time || !location || !category) {
             this.showError(errorEl, 'Please fill in all required fields.');
             return;
         }
 
-        const event = CampusData.addEvent({
-            title, description, date, time, location, category, tags,
-            organizerId: this.currentUser.id,
-            organizerName: this.currentUser.username
+        // Get token from localStorage
+        const token = localStorage.getItem('cem_token');
+        if (!token) {
+            this.showError(errorEl, 'You must be logged in to create an event.');
+            return;
+        }
+
+        // API call to backend
+        fetch(`${API_BASE_URL}/api/events`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                title, description, date, time, location, category, tags
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                this.showError(errorEl, data.error || 'Failed to create event');
+                return;
+            }
+
+            // Also save to localStorage as fallback
+            CampusData.addEvent({
+                title, description, date, time, location, category, tags,
+                organizerId: this.currentUser.id,
+                organizerName: this.currentUser.username
+            });
+
+            // Clear form
+            document.getElementById('eventForm').reset();
+            errorEl.style.display = 'none';
+            errorEl.innerText = '';
+
+            // Update UI
+            alert('Event submitted for approval! Admins will review it shortly.');
+            this.switchDashTab('my-events');
+            this.renderMyEvents();
+        })
+        .catch(err => {
+            console.error('Event creation error:', err);
+            // Fallback to localStorage
+            const event = CampusData.addEvent({
+                title, description, date, time, location, category, tags,
+                organizerId: this.currentUser.id,
+                organizerName: this.currentUser.username
+            });
+
+            document.getElementById('eventForm').reset();
+            errorEl.style.display = 'none';
+            errorEl.innerText = '';
+            alert('Event submitted for approval! Admins will review it shortly.');
+            this.switchDashTab('my-events');
+            this.renderMyEvents();
         });
-
-        // Clear form
-        document.getElementById('eventForm').reset();
-        errorEl.style.display = 'none';
-        errorEl.innerText = '';
-
-        // Notify admin
-        alert('Event submitted for approval! Admins will review it shortly.');
     },
 
     toggleRSVP(eventId) {
-        const isRsvped = CampusData.isRSVPed(this.currentUser.id, eventId);
-        if (isRsvped) {
-            CampusData.removeRSVP(this.currentUser.id, eventId);
-        } else {
-            CampusData.addRSVP(this.currentUser.id, eventId);
+        const token = localStorage.getItem('cem_token');
+        if (!token) {
+            alert('You must be logged in to RSVP to an event.');
+            return;
         }
-        this.renderBrowseEvents();
-        this.renderMyRSVPs();
+
+        const isRsvped = CampusData.isRSVPed(this.currentUser.id, eventId);
+        
+        if (isRsvped) {
+            // Remove RSVP via API
+            fetch(`${API_BASE_URL}/api/rsvps/${eventId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Failed to remove RSVP:', data.error);
+                    return;
+                }
+                // Also update localStorage as fallback
+                CampusData.removeRSVP(this.currentUser.id, eventId);
+                this.renderBrowseEvents();
+                this.renderMyRSVPs();
+            })
+            .catch(err => {
+                console.error('RSVP removal error:', err);
+                // Fallback to localStorage
+                CampusData.removeRSVP(this.currentUser.id, eventId);
+                this.renderBrowseEvents();
+                this.renderMyRSVPs();
+            });
+        } else {
+            // Add RSVP via API
+            fetch(`${API_BASE_URL}/api/rsvps`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ eventId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    console.error('Failed to add RSVP:', data.error);
+                    return;
+                }
+                // Also update localStorage as fallback
+                CampusData.addRSVP(this.currentUser.id, eventId);
+                this.renderBrowseEvents();
+                this.renderMyRSVPs();
+            })
+            .catch(err => {
+                console.error('RSVP creation error:', err);
+                // Fallback to localStorage
+                CampusData.addRSVP(this.currentUser.id, eventId);
+                this.renderBrowseEvents();
+                this.renderMyRSVPs();
+            });
+        }
     },
 
     approveEvent(eventId) {
-        CampusData.approveEvent(eventId);
-        this.renderPendingEvents();
+        const token = localStorage.getItem('cem_token');
+        if (!token) {
+            alert('You must be logged in as an admin to approve events.');
+            return;
+        }
+
+        fetch(`${API_BASE_URL}/api/events/${eventId}/approve`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Failed to approve event:', data.error);
+                return;
+            }
+            // Also update localStorage as fallback
+            CampusData.approveEvent(eventId);
+            this.renderPendingEvents();
+        })
+        .catch(err => {
+            console.error('Event approval error:', err);
+            // Fallback to localStorage
+            CampusData.approveEvent(eventId);
+            this.renderPendingEvents();
+        });
     },
 
     rejectEvent(eventId) {
-        CampusData.rejectEvent(eventId);
-        this.renderPendingEvents();
+        const token = localStorage.getItem('cem_token');
+        if (!token) {
+            alert('You must be logged in as an admin to reject events.');
+            return;
+        }
+
+        fetch(`${API_BASE_URL}/api/events/${eventId}/reject`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                console.error('Failed to reject event:', data.error);
+                return;
+            }
+            // Also update localStorage as fallback
+            CampusData.rejectEvent(eventId);
+            this.renderPendingEvents();
+        })
+        .catch(err => {
+            console.error('Event rejection error:', err);
+            // Fallback to localStorage
+            CampusData.rejectEvent(eventId);
+            this.renderPendingEvents();
+        });
     },
 
     deleteUser(userId) {
