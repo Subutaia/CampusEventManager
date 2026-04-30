@@ -137,9 +137,32 @@ closeEventAnalytics() {
 renderEventAnalytics(event) {
     const container = document.getElementById('eventAnalyticsContent');
 
+    const allEvents = CampusData.getEvents ? CampusData.getEvents() : [];
     const attendeeCount = event.attendeeCount || 0;
     const status = event.status || 'unknown';
     const tagCount = (event.tags || []).length;
+
+    const sameDayEvents = allEvents.filter(e =>
+        e.id !== event.id &&
+        e.date === event.date
+    );
+
+    const sameTimeEvents = allEvents.filter(e =>
+        e.id !== event.id &&
+        e.date === event.date &&
+        e.time === event.time
+    );
+
+    const sameCategoryEvents = allEvents.filter(e =>
+        e.id !== event.id &&
+        e.category === event.category
+    );
+
+    const categoryAverage = sameCategoryEvents.length
+        ? Math.round(
+            sameCategoryEvents.reduce((sum, e) => sum + (e.attendeeCount || 0), 0) / sameCategoryEvents.length
+        )
+        : 0;
 
     container.innerHTML = `
         <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:1rem;margin-bottom:1rem">
@@ -159,18 +182,55 @@ renderEventAnalytics(event) {
             </div>
 
             <div class="card" style="margin:0">
-                <h4 style="margin:0 0 0.5rem 0">Tags Used</h4>
-                <p style="margin:0;font-size:1.6rem;font-weight:700;color:#F59E0B">${tagCount}</p>
+                <h4 style="margin:0 0 0.5rem 0">Category Avg RSVP</h4>
+                <p style="margin:0;font-size:1.6rem;font-weight:700;color:#F59E0B">${categoryAverage}</p>
             </div>
         </div>
 
-        <div class="card" style="margin:0">
+        <div class="card" style="margin-bottom:1rem">
             <h4 style="margin:0 0 1rem 0">Event Info</h4>
             <p style="margin:0 0 0.5rem 0"><strong>Date:</strong> ${CampusData.formatDate(event.date)}</p>
             <p style="margin:0 0 0.5rem 0"><strong>Time:</strong> ${CampusData.formatTime(event.time)}</p>
             <p style="margin:0 0 0.5rem 0"><strong>Location:</strong> ${event.location}</p>
             <p style="margin:0 0 0.5rem 0"><strong>Category:</strong> ${event.category}</p>
             <p style="margin:0.75rem 0 0 0;color:#6B7280">${event.description}</p>
+        </div>
+
+        <div class="card" style="margin-bottom:1rem">
+            <h4 style="margin:0 0 1rem 0">Schedule Comparison</h4>
+            <p style="margin:0 0 0.5rem 0">
+                <strong>Other events on this day:</strong> ${sameDayEvents.length}
+            </p>
+            <p style="margin:0 0 0.5rem 0">
+                <strong>Other events at the same time:</strong> ${sameTimeEvents.length}
+            </p>
+
+            ${
+                sameDayEvents.length
+                    ? `
+                        <div style="margin-top:0.75rem">
+                            ${sameDayEvents.map(e => `
+                                <p style="margin:0.35rem 0;color:#6B7280">
+                                    ${e.title} • ${CampusData.formatTime(e.time)} • ${e.category}
+                                </p>
+                            `).join('')}
+                        </div>
+                    `
+                    : `<p style="margin:0.75rem 0 0 0;color:#6B7280">No other events are scheduled on this day.</p>`
+            }
+        </div>
+
+        <div class="card" style="margin:0">
+            <h4 style="margin:0 0 1rem 0">Category Stats</h4>
+            <p style="margin:0 0 0.5rem 0">
+                <strong>Category:</strong> ${event.category}
+            </p>
+            <p style="margin:0 0 0.5rem 0">
+                <strong>Other events in this category:</strong> ${sameCategoryEvents.length}
+            </p>
+            <p style="margin:0">
+                <strong>Average RSVP count:</strong> ${categoryAverage}
+            </p>
         </div>
     `;
 },
