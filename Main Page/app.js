@@ -114,9 +114,15 @@ document.getElementById('aiPrompt').value = '';
     // Sync approved events from API to localStorage
     syncEventsFromAPI() {
         fetch(`${API_BASE_URL}/api/events`, {
-            method: 'GET'
+            method: 'GET',
+            mode: 'cors'
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status} ${res.statusText}`);
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success && data.data && Array.isArray(data.data)) {
                 // Get current localStorage events
@@ -148,6 +154,15 @@ document.getElementById('aiPrompt').value = '';
                 });
                 
                 CampusData.saveEvents(mergedEvents);
+                
+                // Re-render pages after sync
+                this.renderLandingEvents();
+                this.renderFeaturedEvents();
+                this.renderCalendarSnippet();
+                if (this.currentDashTab === 'browse') this.renderBrowseEvents();
+                if (this.currentDashTab === 'my-events') this.renderMyEvents();
+            } else {
+                console.warn('Event sync returned unexpected data:', data);
             }
         })
         .catch(err => {
@@ -168,11 +183,17 @@ document.getElementById('aiPrompt').value = '';
 
         fetch(`${API_BASE_URL}/api/rsvps/user/mine`, {
             method: 'GET',
+            mode: 'cors',
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP ${res.status} ${res.statusText}`);
+            }
+            return res.json();
+        })
         .then(data => {
             if (data.success && data.data && Array.isArray(data.data)) {
                 // data.data contains the events that user RSVP'd to
@@ -183,6 +204,11 @@ document.getElementById('aiPrompt').value = '';
                     timestamp: e.createdAt || new Date().toISOString()
                 }));
                 CampusData.saveRSVPs(rsvps);
+                if (this.currentDashTab === 'my-rsvps') {
+                    this.renderMyRSVPs();
+                }
+            } else {
+                console.warn('RSVP sync returned unexpected data:', data);
             }
         })
         .catch(err => {

@@ -127,7 +127,6 @@ const CampusData = {
     getApprovedEvents()          { return this.getEvents().filter(e => e.status === 'approved'); },
     getPendingEvents()           { return this.getEvents().filter(e => e.status === 'pending'); },
     getEventsByOrganizer(orgId)  { return this.getEvents().filter(e => e.organizerId === orgId); },
-    getEvents()                  { return JSON.parse(localStorage.getItem('events')) || []; },
 
     addEvent(data) {
         const events = this.getEvents();
