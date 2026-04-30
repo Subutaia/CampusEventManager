@@ -149,13 +149,14 @@ app.post('/api/debug/add-users', async (c) => {
 // Initialize CORS
 app.use('*', cors({
   origin: [
+    'https://campuseventmanager.com',
+    'https://www.campuseventmanager.com',
     'http://localhost:3000',
     'http://localhost:5173',
     'http://localhost:5500',
     'http://localhost:5501',
     'http://127.0.0.1:5500',
     'http://127.0.0.1:5501',
-    'https://*.pages.dev',
     'https://campuseventmanager.pages.dev'
   ],
   credentials: true,
@@ -163,7 +164,6 @@ app.use('*', cors({
   allowHeaders: ['Content-Type', 'Authorization'],
   maxAge: 86400
 }));
-
 // Initialize database and SendGrid once at startup/lazily per request
 app.use('/api/auth/*', async (c, next) => {
   try {
