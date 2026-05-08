@@ -111,7 +111,7 @@
 
 <script src="../Shared/data.js"></script>
 <script>
-    // ── Auth Guard ───────────────────────────────────────────────────────────
+    // Auth Guard
     const user = CampusData.getCurrentUser();
     if (!user || user.role !== 'organizer') {
         window.location.href = '../Login/Login page/Login.html';
@@ -124,7 +124,7 @@
         window.location.href = '../Login/Login page/Login.html';
     });
 
-    // ── Tabs ─────────────────────────────────────────────────────────────────
+    // Tabs 
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
@@ -142,7 +142,7 @@
         if (name === 'my-events')     renderMyEvents();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // Helpers 
     const formatDate = d => CampusData.formatDate(d);
     const formatTime = t => CampusData.formatTime(t);
 
@@ -153,7 +153,7 @@
         badge.style.display = count > 0 ? 'flex' : 'none';
     }
 
-    // ── My Events ─────────────────────────────────────────────────────────────
+    // My Events 
     function renderMyEvents() {
         const events = CampusData.getEventsByOrganizer(user.id);
         const container = document.getElementById('myEventsContainer');
@@ -259,7 +259,7 @@
         setTimeout(() => { el.innerHTML = ''; }, 4000);
     }
 
-    // ── Notifications ─────────────────────────────────────────────────────────
+    // Notifications 
     function renderNotifications() {
         const notifs = CampusData.getNotificationsForUser(user.id);
         const container = document.getElementById('notifContainer');
@@ -289,7 +289,7 @@
         renderNotifications();
     });
 
-    // ── Initial render ────────────────────────────────────────────────────────
+    // Initial render 
     renderMyEvents();
     updateNotifBadge();
 </script>

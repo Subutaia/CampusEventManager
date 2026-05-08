@@ -11,7 +11,6 @@ const router = express.Router();
 
 /**
  * Add RSVP
- * POST /api/rsvps
  */
 router.post('/', verifyToken, async (req, res) => {
   try {
@@ -75,7 +74,6 @@ router.post('/', verifyToken, async (req, res) => {
 
 /**
  * Remove RSVP
- * DELETE /api/rsvps/:eventId
  */
 router.delete('/:eventId', verifyToken, async (req, res) => {
   try {
@@ -103,7 +101,6 @@ router.delete('/:eventId', verifyToken, async (req, res) => {
 
 /**
  * Get user's RSVPs
- * GET /api/rsvps/user/mine
  */
 router.get('/user/mine', verifyToken, async (req, res) => {
   try {
@@ -124,7 +121,6 @@ router.get('/user/mine', verifyToken, async (req, res) => {
 
 /**
  * Check if user RSVP'd to event
- * GET /api/rsvps/check/:eventId
  */
 router.get('/check/:eventId', verifyToken, async (req, res) => {
   try {
@@ -141,7 +137,6 @@ router.get('/check/:eventId', verifyToken, async (req, res) => {
 
 /**
  * Get event attendees
- * GET /api/rsvps/event/:eventId
  */
 router.get('/event/:eventId', async (req, res) => {
   try {

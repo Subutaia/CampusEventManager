@@ -9,7 +9,6 @@ const router = express.Router();
 
 /**
  * Get user notifications
- * GET /api/notifications
  */
 router.get('/', verifyToken, async (req, res) => {
   try {
@@ -26,7 +25,6 @@ router.get('/', verifyToken, async (req, res) => {
 
 /**
  * Get unread notification count
- * GET /api/notifications/unread/count
  */
 router.get('/unread/count', verifyToken, async (req, res) => {
   try {
@@ -43,7 +41,6 @@ router.get('/unread/count', verifyToken, async (req, res) => {
 
 /**
  * Mark notification as read
- * PATCH /api/notifications/:id/read
  */
 router.patch('/:id/read', verifyToken, async (req, res) => {
   try {
@@ -70,7 +67,6 @@ router.patch('/:id/read', verifyToken, async (req, res) => {
 
 /**
  * Mark all notifications as read
- * PATCH /api/notifications/read/all
  */
 router.patch('/read/all', verifyToken, async (req, res) => {
   try {
@@ -87,7 +83,6 @@ router.patch('/read/all', verifyToken, async (req, res) => {
 
 /**
  * Delete notification
- * DELETE /api/notifications/:id
  */
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
@@ -110,7 +105,6 @@ router.delete('/:id', verifyToken, async (req, res) => {
 
 /**
  * Test email endpoint - verify SendGrid is working
- * POST /api/notifications/test-email
  */
 router.post('/test-email', verifyToken, async (req, res) => {
   try {
@@ -145,7 +139,6 @@ router.post('/test-email', verifyToken, async (req, res) => {
 
 /**
  * Send notification (admin only)
- * POST /api/notifications/send
  */
 router.post('/send', verifyToken, requireRole('admin'), async (req, res) => {
   try {

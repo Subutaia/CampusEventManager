@@ -1,9 +1,5 @@
-/**
- * Campus Event Manager - SPA Application State & Logic
- * Handles authentication, dashboard rendering, and navigation
- */
 
-// API Configuration - Change based on environment
+// API Configuration
 const API_BASE_URL = (() => {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:8787';
@@ -145,7 +141,7 @@ document.getElementById('aiPrompt').value = '';
                     createdAt: e.createdAt
                 }));
                 
-                // Merge: keep local events that aren't in API, add API events
+                // keep local events that aren't in API, add API events
                 const mergedEvents = [...apiEvents];
                 currentEvents.forEach(localEvent => {
                     if (!apiEvents.find(e => e.id === localEvent.id)) {
@@ -167,7 +163,7 @@ document.getElementById('aiPrompt').value = '';
         })
         .catch(err => {
             console.warn('Failed to sync events from API:', err);
-            // Silently fail - use cached localStorage data
+            // Use cached localStorage data
         });
 
         // Also sync RSVPs if user is logged in
@@ -577,13 +573,13 @@ renderAnalyticsModal() {
     // Setup all event listeners
     setupEventListeners() {
 
-        // Modal close on background click - AI Description Generation
+        // Modal close on background click 
         document.getElementById('aiModal')?.addEventListener('click', (e) => {
     if (e.target.id === 'aiModal') {
         this.closeAiModal();
     }
 });
-        // Modal close on background click - Event Analytics
+        // Modal close on background click 
 
                 document.getElementById('eventAnalyticsModal')?.addEventListener('click', (e) => {
             if (e.target.id === 'eventAnalyticsModal') {
@@ -1044,7 +1040,7 @@ renderAnalyticsModal() {
         // Also get localStorage events as fallback
         const localEvents = CampusData.getEventsByOrganizer(this.currentUser.id) || [];
         
-        // Merge API and local events - API takes precedence
+        // Merge API and local events 
         const eventMap = new Map();
         
         // Add API events
@@ -1125,7 +1121,7 @@ renderAnalyticsModal() {
         `).join('');
     });
 },
-    // Event rendering - Landing page
+    // Event rendering 
     renderLandingEvents() {
         const query = document.getElementById('searchInput')?.value.toLowerCase() || '';
         const category = document.getElementById('categoryFilter')?.value || '';

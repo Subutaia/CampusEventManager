@@ -15,9 +15,7 @@ import notificationRoutes from './routes/notifications.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ─────────────────────────────────────────────────────────────────────────────
 // MIDDLEWARE
-// ─────────────────────────────────────────────────────────────────────────────
 
 app.use(cors({
   origin: [
@@ -39,9 +37,7 @@ app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ─────────────────────────────────────────────────────────────────────────────
 // ROUTES
-// ─────────────────────────────────────────────────────────────────────────────
 
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
@@ -61,9 +57,7 @@ app.use((req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-// ─────────────────────────────────────────────────────────────────────────────
 // SERVER STARTUP
-// ─────────────────────────────────────────────────────────────────────────────
 
 const startServer = async () => {
   try {

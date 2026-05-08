@@ -1,5 +1,3 @@
-// Campus Event Management System – Data Layer
-// All persistence via localStorage; session state via sessionStorage.
 
 const CampusData = {
 
@@ -16,7 +14,7 @@ const CampusData = {
         this.saveUsers(users);
 
         const events = [
-            // Technology (3)
+            // Technology 
             {
                 id: 'ev_1', title: 'Tech Innovation Summit',
                 description: 'Join us for an inspiring day of technology talks and networking opportunities with industry leaders.',
@@ -39,7 +37,7 @@ const CampusData = {
                 status: 'approved', attendeeCount: 156, tags: ['Coding', 'Hackathon', 'Prizes'], createdAt: now
             },
 
-            // Cultural (2)
+            // Cultural 
             {
                 id: 'ev_7', title: 'Cultural Night Festival',
                 description: 'Celebrate diversity with food, music, and performances from around the world.',
@@ -55,7 +53,7 @@ const CampusData = {
                 status: 'approved', attendeeCount: 312, tags: ['Food', 'International'], createdAt: now
             },
 
-            // Career (2)
+            // Career 
             {
                 id: 'ev_3', title: 'Career Fair 2026',
                 description: 'Meet with top employers and explore internship and career opportunities.',
@@ -71,7 +69,7 @@ const CampusData = {
                 status: 'approved', attendeeCount: 94, tags: ['Resume', 'LinkedIn'], createdAt: now
             },
 
-            // Sports (2)
+            // Sports 
             {
                 id: 'ev_16', title: 'Campus 5K Run',
                 description: 'Join the community for a fun 5K run around campus. All fitness levels welcome!',
@@ -87,7 +85,7 @@ const CampusData = {
                 status: 'approved', attendeeCount: 189, tags: ['Volleyball', 'Sports'], createdAt: now
             },
 
-            // Other (1)
+            // Other 
             {
                 id: 'ev_21', title: 'Volunteer Service Day',
                 description: 'Join your community in environmental cleanup and service projects around campus.',
@@ -102,7 +100,7 @@ const CampusData = {
         localStorage.setItem('cem_initialized', 'true');
     },
 
-    // ── Users ────────────────────────────────────────────────────────────────
+    // Users 
     getUsers()             { return JSON.parse(localStorage.getItem('cem_users') || '[]'); },
     saveUsers(users)       { localStorage.setItem('cem_users', JSON.stringify(users)); },
     getUserById(id)        { return this.getUsers().find(u => u.id === id) || null; },
@@ -120,7 +118,7 @@ const CampusData = {
         this.saveUsers(this.getUsers().filter(u => u.id !== id));
     },
 
-    // ── Events ───────────────────────────────────────────────────────────────
+    // Events 
     getEvents()                  { return JSON.parse(localStorage.getItem('cem_events') || '[]'); },
     saveEvents(events)           { localStorage.setItem('cem_events', JSON.stringify(events)); },
     getEventById(id)             { return this.getEvents().find(e => e.id === id) || null; },
@@ -168,7 +166,7 @@ const CampusData = {
         return event;
     },
 
-    // ── RSVPs ────────────────────────────────────────────────────────────────
+    // RSVPs
     getRSVPs()                        { return JSON.parse(localStorage.getItem('cem_rsvps') || '[]'); },
     saveRSVPs(rsvps)                  { localStorage.setItem('cem_rsvps', JSON.stringify(rsvps)); },
     isRSVPed(userId, eventId)         { return this.getRSVPs().some(r => r.userId === userId && r.eventId === eventId); },
@@ -196,7 +194,7 @@ const CampusData = {
         return true;
     },
 
-    // ── Notifications ────────────────────────────────────────────────────────
+    // Notifications 
     getNotifications()        { return JSON.parse(localStorage.getItem('cem_notifications') || '[]'); },
     saveNotifications(notifs) { localStorage.setItem('cem_notifications', JSON.stringify(notifs)); },
 
@@ -230,7 +228,7 @@ const CampusData = {
         return this.getNotificationsForUser(userId).filter(n => !n.read).length;
     },
 
-    // ── Shared Utilities ─────────────────────────────────────────────────────
+    // Shared Utilities 
     formatDate(dateStr) {
         if (!dateStr) return '';
         return new Date(dateStr + 'T00:00:00').toLocaleDateString(navigator.language || 'en-US', {
@@ -245,7 +243,7 @@ const CampusData = {
         return (hr % 12 || 12) + ':' + m + ' ' + (hr >= 12 ? 'PM' : 'AM');
     },
 
-        // ── Session / Auth Persistence ──────────────────────────────────────────────
+        // Session/Auth Persistence 
     getCurrentUser() {
         return JSON.parse(localStorage.getItem('cem_user') || 'null');
     },

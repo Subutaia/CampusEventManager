@@ -8,7 +8,6 @@ const router = express.Router();
 
 /**
  * Register a new user
- * POST /api/auth/register
  */
 router.post('/register', async (req, res) => {
   try {
@@ -71,7 +70,6 @@ router.post('/register', async (req, res) => {
 
 /**
  * Login user
- * POST /api/auth/login
  */
 router.post('/login', async (req, res) => {
   try {
@@ -108,7 +106,6 @@ router.post('/login', async (req, res) => {
 
 /**
  * Verify token
- * GET /api/auth/verify
  */
 router.post('/verify', async (req, res) => {
   try {

@@ -25,15 +25,13 @@ document.getElementById("Register").addEventListener("click", handleRegister);
     }
 });
 
-// 🔥 Already have account button (YOUR WAY)
+//  Already have account button 
 document.getElementById("HaveAccount").addEventListener("click", () => {
     sessionStorage.removeItem("cem_pending_role");
     window.location.href = "../Login page/Login.html"; // adjust if needed
 });
 
-// ==========================
 // Register logic
-// ==========================
 function handleRegister() {
     const username = document.getElementById("usernameInput").value.trim();
     const email = document.getElementById("emailInput").value.trim();
@@ -57,7 +55,6 @@ function handleRegister() {
     }
 
     // Send registration to backend API
-    // Use the global API_BASE_URL from app.js
     const apiUrl = typeof API_BASE_URL !== 'undefined' ? API_BASE_URL : 'https://campus-event-manager-worker.memelord801.workers.dev';
     fetch(`${apiUrl}/api/auth/register`, {
         method: "POST",
@@ -100,9 +97,8 @@ function handleRegister() {
     });
 }
 
-// ==========================
+
 // Error handling
-// ==========================
 function showError(message) {
     const errorEl = document.getElementById("registerError");
     if (errorEl) {

@@ -10,7 +10,6 @@ const router = express.Router();
 
 /**
  * Create an event
- * POST /api/events
  */
 router.post('/', verifyToken, requireRole('organizer', 'admin'), async (req, res) => {
   try {
@@ -63,7 +62,6 @@ router.post('/', verifyToken, requireRole('organizer', 'admin'), async (req, res
 
 /**
  * Get all approved events
- * GET /api/events
  */
 router.get('/', async (req, res) => {
   try {
@@ -92,7 +90,6 @@ router.get('/', async (req, res) => {
 
 /**
  * Get organizer's events
- * GET /api/events/organizer/mine
  */
 router.get('/organizer/mine', verifyToken, async (req, res) => {
   try {
@@ -108,7 +105,6 @@ router.get('/organizer/mine', verifyToken, async (req, res) => {
 
 /**
  * Get single event
- * GET /api/events/:id
  */
 router.get('/:id', async (req, res) => {
   try {
@@ -127,7 +123,6 @@ router.get('/:id', async (req, res) => {
 
 /**
  * Update event
- * PUT /api/events/:id
  */
 router.put('/:id', verifyToken, async (req, res) => {
   try {
@@ -163,7 +158,6 @@ router.put('/:id', verifyToken, async (req, res) => {
 
 /**
  * Delete event
- * DELETE /api/events/:id
  */
 router.delete('/:id', verifyToken, async (req, res) => {
   try {
@@ -188,7 +182,6 @@ router.delete('/:id', verifyToken, async (req, res) => {
 
 /**
  * Approve event (admin only)
- * PATCH /api/events/:id/approve
  */
 router.patch('/:id/approve', verifyToken, requireRole('admin'), async (req, res) => {
   try {
@@ -226,7 +219,6 @@ router.patch('/:id/approve', verifyToken, requireRole('admin'), async (req, res)
 
 /**
  * Reject event (admin only)
- * PATCH /api/events/:id/reject
  */
 router.patch('/:id/reject', verifyToken, requireRole('admin'), async (req, res) => {
   try {
@@ -264,7 +256,6 @@ router.patch('/:id/reject', verifyToken, requireRole('admin'), async (req, res) 
 
 /**
  * Get pending events (admin only)
- * GET /api/events/admin/pending
  */
 router.get('/admin/pending', verifyToken, requireRole('admin'), async (req, res) => {
   try {

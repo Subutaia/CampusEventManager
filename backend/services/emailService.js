@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-// Create transporter lazily to ensure env vars are loaded
+// Create transporter to ensure env vars are loaded
 function getTransporter() {
   return nodemailer.createTransport({
     service: 'gmail',
@@ -146,7 +146,7 @@ export async function sendRSVPConfirmationEmail(student, event) {
 }
 
 /**
- * Send event reminder email (24 hours before)
+ * Send event reminder email 
  */
 export async function sendEventReminderEmail(attendee, event) {
   try {

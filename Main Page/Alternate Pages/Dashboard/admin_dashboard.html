@@ -82,7 +82,7 @@
 
 <script src="../Shared/data.js"></script>
 <script>
-    // ── Auth Guard ───────────────────────────────────────────────────────────
+    // Auth Guard 
     const user = CampusData.getCurrentUser();
     if (!user || user.role !== 'admin') {
         window.location.href = '../Login/Login page/Login.html';
@@ -95,7 +95,7 @@
         window.location.href = '../Login/Login page/Login.html';
     });
 
-    // ── Tabs ─────────────────────────────────────────────────────────────────
+    // Tabs 
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
@@ -115,7 +115,7 @@
         if (name === 'notifications') renderNotifications();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // Helpers 
     const formatDate = d => CampusData.formatDate(d);
     const formatTime = t => CampusData.formatTime(t);
 
@@ -126,7 +126,7 @@
         badge.style.display = count > 0 ? 'flex' : 'none';
     }
 
-    // ── Pending Approval ──────────────────────────────────────────────────────
+    // Pending Approval 
     function renderPending() {
         const events = CampusData.getPendingEvents();
         const container = document.getElementById('pendingContainer');
@@ -172,7 +172,7 @@
         updateNotifBadge();
     }
 
-    // ── All Events ────────────────────────────────────────────────────────────
+    // All Events
     function renderAllEvents() {
         const events = CampusData.getEvents();
         const container = document.getElementById('allEventsContainer');
@@ -216,7 +216,7 @@
         renderAllEvents();
     }
 
-    // ── Users ─────────────────────────────────────────────────────────────────
+    // Users 
     function renderUsers() {
         const users = CampusData.getUsers();
         const tbody = document.getElementById('usersTableBody');
@@ -239,7 +239,7 @@
         renderUsers();
     }
 
-    // ── Notifications ─────────────────────────────────────────────────────────
+    // Notifications 
     function renderNotifications() {
         const notifs = CampusData.getNotificationsForUser(user.id);
         const container = document.getElementById('notifContainer');
@@ -269,7 +269,7 @@
         renderNotifications();
     });
 
-    // ── Initial render ────────────────────────────────────────────────────────
+    // Initial render 
     renderPending();
     updateNotifBadge();
 </script>

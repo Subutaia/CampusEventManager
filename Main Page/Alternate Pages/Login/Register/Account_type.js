@@ -1,6 +1,4 @@
-// Account Type Controller
 // This script is loaded from Login_page/HTML/Account_type.html,
-// so all href paths are relative to that HTML file's location.
 
 document.getElementById("Organizer").addEventListener("click", () => {
     sessionStorage.setItem("cem_pending_role", "organizer");

@@ -70,7 +70,7 @@
 
 <script src="../Shared/data.js"></script>
 <script>
-    // ── Auth Guard ───────────────────────────────────────────────────────────
+    // Auth Guard 
     const user = CampusData.getCurrentUser();
     if (!user || user.role !== 'student') {
         window.location.href = '../Login/Login page/Login.html';
@@ -83,7 +83,7 @@
         window.location.href = '../Login/Login page/Login.html';
     });
 
-    // ── Tabs ─────────────────────────────────────────────────────────────────
+    // Tabs 
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => switchTab(btn.dataset.tab));
     });
@@ -101,11 +101,11 @@
         if (name === 'my-rsvps') renderMyRSVPs();
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // Helpers 
     const formatDate = d => CampusData.formatDate(d);
     const formatTime = t => CampusData.formatTime(t);
 
-    // ── Notification Badge ────────────────────────────────────────────────────
+    // Notification Badge 
     function updateNotifBadge() {
         const count = CampusData.getUnreadCount(user.id);
         const badge = document.getElementById('notifCount');
@@ -113,7 +113,7 @@
         badge.style.display = count > 0 ? 'flex' : 'none';
     }
 
-    // ── Browse Events ─────────────────────────────────────────────────────────
+    // Browse Events 
     function renderEvents() {
         const query    = document.getElementById('searchInput').value.toLowerCase();
         const category = document.getElementById('categoryFilter').value;
@@ -168,7 +168,7 @@
         updateNotifBadge();
     }
 
-    // ── My RSVPs ──────────────────────────────────────────────────────────────
+    // My RSVPs 
     function renderMyRSVPs() {
         const rsvps  = CampusData.getRSVPsByUser(user.id);
         const container = document.getElementById('rsvpsContainer');
@@ -202,7 +202,7 @@
         updateNotifBadge();
     }
 
-    // ── Notifications ─────────────────────────────────────────────────────────
+    //  Notifications
     function renderNotifications() {
         const notifs = CampusData.getNotificationsForUser(user.id);
         const container = document.getElementById('notifContainer');
@@ -232,11 +232,11 @@
         renderNotifications();
     });
 
-    // ── Wire up search/filter ─────────────────────────────────────────────────
+    // Wire up search/filter
     document.getElementById('searchInput').addEventListener('input', renderEvents);
     document.getElementById('categoryFilter').addEventListener('change', renderEvents);
 
-    // ── Initial render ────────────────────────────────────────────────────────
+    // Initial render 
     renderEvents();
     updateNotifBadge();
 </script>
